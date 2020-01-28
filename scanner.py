@@ -12,11 +12,9 @@ def callback(msg):
 	lr2 = laser_range
 	lr2[lr2==0] = np.nan
 	# find index with minimum value
-	lr2i = np.nanargmin(lr2)
-    lr2j = np.nanargmax(lr2)
-	
+	lr2i, lr2j = np.nanargmin(lr2), np.nanargmax(lr2)
 	# log the info
-    	rospy.loginfo('Shortest distance is %i degrees %i with a distance of %j', lr2i, lr2[lr2i])
+        rospy.loginfo('Shortest distance is %i degrees %i with a distance of %j', lr2i, lr2[lr2i])
         rospy.loginfo('Furthest distance is %i degrees %i with a distance of %j', lr2j, lr2[lr2j])
 
 
