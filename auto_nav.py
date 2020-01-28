@@ -15,8 +15,8 @@ laser_range = np.array([])
 occdata = []
 yaw = 0.0
 rotate_speed = 0.1
-linear_speed = 0.01
-stop_distance = 0.25
+linear_speed = 0.10
+stop_distance = 1
 occ_bins = [-1, 0, 100, 101]
 front_angle = 30
 front_angles = range(-front_angle,front_angle+1,1)
@@ -125,11 +125,12 @@ def pick_direction():
 
     try:
         lr2i = np.argmax(laser_range)
+        lrdistance = laser_range[lr2i]
     except ValueError:
         # in case laser_range is empty
         lr2i = 0
 
-    rospy.loginfo(['Picked direction: ' + str(lr2i)])
+    rospy.loginfo(['Picked direction: ' + str(lr2i)] + '; Distance: %i metres', lrdistance)
 
     # rotate to that direction
     rotatebot(float(lr2i))
