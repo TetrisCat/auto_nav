@@ -4,7 +4,7 @@ Spyder Editor
 
 This is a temporary script file.
 """
-
+'''
 istr = str(raw_input('Keys:'))
 if istr.isnumeric()
     display('this')
@@ -90,10 +90,11 @@ c = a / b
 
 from random import randint
 print(randint(1, 247))
-
+'''
 # commands to work with images
 from PIL import Image
-
+import matplotlib.pyplot as plt
+import numpy as np
 a = np.random.randint(0,255,(600,600),dtype=np.uint8)
 a = np.zeros((600,600), dtype=np.uint8)
 img = Image.fromarray(a)
@@ -101,3 +102,41 @@ img.show()
 rotated = img.rotate(45)
 rotated.show()
 
+import re
+import numpy as np
+f = open('lidar.txt')
+line = f.readlines()[13]
+f.close()
+laser_range = np.array(re.findall('\d+.\d*',line))
+
+f = open('map.txt')
+line = f.readlines()[23]
+f.close()
+# split line into a list 
+lsplit = line.split(', ')
+# find number of entries in the list
+lslen = len(lsplit)
+# create an empty list that will contain just values
+l = []
+# the first entry is 'data: [xx' so we will get the 8th character onwards
+l.append(float(lsplit[0][7:]))
+# add the rest of the values except the last value
+x = 1
+while x < (lslen-1):
+    l.append(float(lsplit[x]))
+    x += 1
+    
+# the last entry is 'xx]\n' so we will get all except the last 3 characters
+l.append(float(lsplit[x][0:-2]))
+# create a numpy array
+occdata = np.array(l)
+# make negative values 0
+occ2 = occdata + 1
+# convert into 2D array using column order
+# the width and height can be found on Lines 12 & 13
+# in map.txt
+odata = np.uint8(occ2.reshape(384,384,order='F'))
+# create image from 2D array using PIL
+img = Image.fromarray(odata)
+# show the image using grayscale map
+plt.imshow(img,cmap='gray')
