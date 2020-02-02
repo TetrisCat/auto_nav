@@ -125,13 +125,11 @@ def pick_direction():
 
     try:
         lr2i = np.argmax(laser_range)
-        lrdistance = laser_range[lr2i]
     except ValueError:
         # in case laser_range is empty
         lr2i = 0
 
-    rospy.loginfo(['Picked direction: ' + str(lr2i)] + '; Distance: %i metres', lrdistance)
-
+    rospy.loginfo(['Picked direction: ' + str(lr2i)])
     # rotate to that direction
     rotatebot(float(lr2i))
 
