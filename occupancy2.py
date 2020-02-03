@@ -23,7 +23,8 @@ def callback(msg, tfBuffer):
     # compute histogram to identify percent of bins with -1
     occ_counts = np.histogram(occdata,occ_bins)
     # calculate total number of bins
-    total_bins = msg.info.width * msg.info.height
+    mapw, maph = msg.info.width, msg.info.height
+    total_bins = mapw*maph
     # log the info
     rospy.loginfo('Width: %i Height: %i',msg.info.width,msg.info.height)
     rospy.loginfo('Unmapped: %i Unoccupied: %i Occupied: %i Total: %i', occ_counts[0][0], occ_counts[0][1], occ_counts[0][2], total_bins)
@@ -49,15 +50,25 @@ def callback(msg, tfBuffer):
     img = Image.fromarray(odata)
     # rotate by 180 degrees to invert map so that the forward direction is at the top of the image
     rotated = img.rotate(np.degrees(yaw)+180)
-    x_trans = -trans.transform.translation.x / msg.info.resolution
-    y_trans = -trans.transform.translation.y / msg.info.resolution
-
-    translatedaffine = np.array([[1, 0, y_trans],[0, 1, x_trans],[0,0,1]])
+    
+    #finding the x and y translations needed for the map to centre the turtlebot
+    x_trans = (-trans.transform.translation.x - msg.info.origin.position.x)/msg.info.resolution
+    y_trans = (-trans.transform.translation.y - msg.info.origin.position.y)/msg.info.resolution
+    
+    #using an affine transformation on the image to centre the robot
+    translatedaffine = np.array([
+            [1, 0, y_trans],
+            [0, 1, x_trans],
+            [0,0,1]])
     T_inv = np.linalg.inv(translatedaffine)
     
-    translated = rotated.transform((msg.info.width,msg.info.height),Image.AFFINE,data=T_inv.flatten()[:6])
+    translated = rotated.transform((mapw,maph),Image.AFFINE,data=T_inv.flatten()[:6])
+    
+    #adding marker to turtlebot
+    marked_image = translated.putpixel((mapw/2, maph/2),(0,0,0,255))
+    
     # show image using grayscale ma
-    plt.imshow(translated,cmap ='gray')
+    plt.imshow(marked_image,cmap ='gray')
     plt.draw_all()
     # pause to make sure the plot gets created
     plt.pause(0.00000000001)
@@ -75,8 +86,6 @@ def occupancy2():
     rospy.Subscriber('map', OccupancyGrid, callback, tfBuffer)
 
     plt.ion()
-#    plt.rc('grid',linestyle = "-", color = "white")
-#    plt.grid(True)
     plt.show()
 
     # spin() simply keeps python from exiting until this node is stopped

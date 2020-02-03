@@ -95,21 +95,14 @@ print(randint(1, 247))
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
-a = np.random.randint(0,255,(600,600),dtype=np.uint8)
-a = np.zeros((600,600), dtype=np.uint8)
-img = Image.fromarray(a)
-img.show()
-rotated = img.rotate(45)
-rotated.show()
 
 import re
-import numpy as np
-f = open('lidar.txt')
-line = f.readlines()[13]
-f.close()
-laser_range = np.array(re.findall('\d+.\d*',line))
+#f = open('lidar.txt')
+#line = f.readlines()[13]
+#f.close()
+#laser_range = np.array(re.findall('\d+.\d*',line))
 
-f = open('map.txt')
+f = open('map4.txt')
 line = f.readlines()[23]
 f.close()
 # split line into a list 
@@ -139,4 +132,4 @@ odata = np.uint8(occ2.reshape(384,384,order='F'))
 # create image from 2D array using PIL
 img = Image.fromarray(odata)
 # show the image using grayscale map
-plt.imshow(img,cmap='gray')
+plt.imshow(img,cmap ='gray')
