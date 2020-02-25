@@ -146,7 +146,7 @@ def pick_direction():
 def mover():
     global laser_range
 
-    rospy.init_node('mover', anonymous=True)
+    rospy.init_node('autonav', anonymous=True)
 
     # subscribe to odometry data
     rospy.Subscriber('odom', Odometry, get_odom_dir)
