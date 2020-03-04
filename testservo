@@ -1,0 +1,76 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+"""
+Created on Fri Feb  7 12:22:54 2020
+
+@author: adricpjw
+"""
+
+import rospy
+from nav_msgs.msg import Odometry
+from nav_msgs.msg import OccupancyGrid
+from sensor_msgs.msg import LaserScan
+from tf.transformations import euler_from_quaternion
+from geometry_msgs.msg import Twist
+import math
+import cmath
+import numpy as np
+import time
+
+import RPi.GPIO as GPIO
+
+GPIO.setmode(GPIO.BOARD)
+servo_point = 32
+sol_point = 40
+GPIO.setup(servo_point,GPIO.OUT)
+GPIO.setup(sol_point,GPIO.OUT)
+
+pwm = GPIO.PWM(servo_point,50)
+pwm.start(2.5)
+
+laser_range = np.array([])
+
+front_angle = 30
+front_angles = range(-front_angle,front_angle+1,1)
+
+def get_laserscan(msg):
+    global laser_range
+
+    # create numpy array
+    laser_range = np.array([msg.ranges])
+    
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx]
+
+def scan_forServo():
+    global laser_range
+    rospy.init_node('testservo',anonymous=True)
+    rospy.Subscriber('scan', LaserScan, get_laserscan)
+    
+    rate = rospy.Rate(5)
+    
+    while not rospy.is_shutdown():
+        # check distances in front of TurtleBot
+        lr2 = laser_range[0,front_angles]
+        # distances beyond the resolution of the Lidar are returned
+        # as zero, so we need to exclude those values
+        lr20 = (lr2!=0).nonzero()
+        
+        nearestToOne = find_nearest(lr20, 1.0)
+        rospy.loginfo(nearestToOne)
+        
+        if abs(nearestToOne - 1) <= 0.05:
+            pwm.ChangeDutyCycle(5)
+            rospy.loginfo('Distance of %i located, firing plunger', nearestToOne)
+            
+
+        
+
+
+if __name__ == '__main__':
+    try:
+        scan_forServo()
+    except rospy.ROSInterruptException:
+        pass
