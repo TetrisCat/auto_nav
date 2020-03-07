@@ -46,6 +46,7 @@ def callback(msg, tfBuffer):
     oc3 = (oc2>1).choose(oc2,2)
     # reshape to 2D array using column order
     odata = np.uint8(oc3.reshape(msg.info.width,msg.info.height,order='F'))
+    odata[maph/2][mapw/2] = 1
     # create image from 2D array using PIL
     img = Image.fromarray(odata)
     # rotate by 180 degrees to invert map so that the forward direction is at the top of the image
@@ -65,13 +66,12 @@ def callback(msg, tfBuffer):
     translated = rotated.transform((mapw,maph),Image.AFFINE,data=T_inv.flatten()[:6])
     
     #adding marker to turtlebot
-    marked_image = translated.putpixel((mapw/2, maph/2),(0,0,0,255))
     
     # show image using grayscale ma
-    plt.imshow(marked_image,cmap ='gray')
+    plt.imshow(translated,cmap ='gray')
     plt.draw_all()
     # pause to make sure the plot gets created
-    plt.pause(0.00000000001)
+    plt.pause(0.1)
 
 
 def occupancy2():
