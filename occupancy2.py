@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import tf2_ros
 from PIL import Image
 from tf.transformations import euler_from_quaternion
-from std_msgs.msg import Int32MultiArray
+from std_msgs.msg import Int32MultiArray, MultiArrayDimension
 # constants
 occ_bins = [-1, 0, 100, 101]
 
@@ -46,10 +46,18 @@ def callback(msg, tfBuffer):
     oc3 = (oc2>1).choose(oc2,2)
 
     #creating Int32MultiArray object
-    oc3_data = Int32MultiArray()
-    oc3_data.data = oc3
-    pub = rospy.Publisher('oc3',Int32MultiArray,queue_size=10)
-    pub.publish(oc3_data)
+    occ_mat = Int32MultiArray()
+    occ_mat.layout.dim.append(MultiArrayDimension())
+    occ_mat.layout.dim.append(MultiArrayDimension())
+    occ_mat.layout.dim[0].label = "height"
+    occ_mat.layout.dim[1].label = "width"
+    occ_mat.layout.dim[0].size = maph
+    occ_mat.layout.dim[1].size = mapw
+    occ_mat.layout.dim[0].stride = total_bins
+    occ_mat.layout.dim[1].stride = mapw
+    occ_mat.data = oc3
+    pub = rospy.Publisher('occ_mat',Int32MultiArray,queue_size=10)
+    pub.publish(occ_mat)
     # reshape to 2D array using column order
     odata = np.uint8(oc3.reshape(msg.info.width,msg.info.height,order='F'))
     odata[maph/2][mapw/2] = 1
