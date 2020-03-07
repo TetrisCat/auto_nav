@@ -2,6 +2,8 @@ import re
 import numpy as np
 from PIL import Image
 import matplotlib.pyplot as plt
+import math
+import time
 
 f = open('occ_mat.txt')
 line = f.readlines()[11]
@@ -21,8 +23,13 @@ print(occ_mat)
 img = Image.fromarray(occ_mat.astype(np.uint8))
 rotated = img.rotate(180)
 
+def distance(p0, p1):
+    return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
 
 x= {coord:value for coord,value in np.ndenumerate(occ_mat)}
+routelst = []
+distancelst = []
+cur_pose = (0,0)
 for k,v in x.items():
     if v == 2:
         i = k[0]
@@ -35,7 +42,12 @@ for k,v in x.items():
             if x[(i,j+checker)] == 2:
                 counter +=1
         if counter <2:
-            print(k)
+            routelst.append(k)
+
+for k in routelst:
+    distancelst.append(distance(k,cur_pose))
+idx = np.argmin(distancelst)
+print(routelst[idx])
 
 
 plt.imshow(img,cmap='gray')

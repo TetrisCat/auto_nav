@@ -24,6 +24,57 @@ from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 import actionlib
 from actionlib_msgs.msg import *
 from geometry_msgs.msg import Pose, Point, Quaternion
+from nav_msgs.msg import Odometry
+from std_msgs.msg import Int32MultiArray,MultiArrayDimension
+import math
+import numpy as np
+import time
+
+occdata = []
+occ_mat = []
+cur_pose = ()
+def distance(p0, p1):
+    return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
+
+def get_pose(msg):
+    global cur_pose
+    cur_pose = (msg.pose.pose.position.x,msg.pose.pose.position.y)
+
+def get_coords(msg):
+    global occdata
+    global occ_mat
+
+    occdata = np.array(msg.data)
+    maph = msg.layout.dim[0].size
+    mapw = msg.layout.dim[1].size
+    occ_mat = occdata.reshape(mapw,maph,order='F')
+
+def get_closest():
+    global occ_mat
+    global cur_pose
+
+    x = {coord:value for coord,value in np.ndenumerate(occ_mat)}
+    routelst = []
+    distancelst = []
+    for k,v in x.items():
+        if v == 2:
+            i = k[0]
+            j = k[1]
+            counter = 0
+            checkers = [-1,1]
+            for checker in checkers:
+                if x[(i+checker,j)] == 2:
+                    counter +=1
+                if x[(i,j+checker)] == 2:
+                    counter +=1
+            if counter <2:
+                routelst.append(k)
+    
+    for k in routelst:
+        distancelst.append(distance(k,cur_pose))
+    idx = np.argmin(distancelst)
+    return routelst[idx]
+
 
 class GoToPose():
     def __init__(self):
@@ -77,10 +128,15 @@ class GoToPose():
 if __name__ == '__main__':
     try:
         rospy.init_node('nav_test', anonymous=False)
+        rospy.Subscriber('odom',Odometry,get_pose)
+        rospy.Subscriber('occ_mat',Int32MultiArray,get_coords)
+
         navigator = GoToPose()
 
         # Customize the following values so they are appropriate for your location
-        position = {'x': 1.22, 'y' : 2.56}
+        coords = get_closest()
+
+        position = {'x': coords[0], 'y' : coords[1]}
         quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
 
         rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
