@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 import tf2_ros
 from PIL import Image
 from tf.transformations import euler_from_quaternion
-
+from std_msgs.msg import Int32MultiArray
 # constants
 occ_bins = [-1, 0, 100, 101]
 
@@ -44,6 +44,12 @@ def callback(msg, tfBuffer):
     oc2 = occdata[0] + 1
     # set all values above 1 (i.e. above 0 in the original map data, representing occupied locations)
     oc3 = (oc2>1).choose(oc2,2)
+
+    #creating Int32MultiArray object
+    oc3_data = Int32MultiArray()
+    oc3_data.data = oc3
+    pub = rospy.Publisher('oc3',Int32MultiArray,queue_size=10)
+    pub.publish(oc3_data)
     # reshape to 2D array using column order
     odata = np.uint8(oc3.reshape(msg.info.width,msg.info.height,order='F'))
     odata[maph/2][mapw/2] = 1

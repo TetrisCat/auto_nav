@@ -44,20 +44,27 @@ def get_laserscan(msg):
 def get_occupancy(msg):
     global occdata
 
+
+
     # create numpy array
-    occdata = np.array(msg.data)
+    occdata = np.array([msg.data])
+    rospy.loginfo(occdata)
     # compute histogram to identify percent of bins with -1
     occ_counts = np.histogram(occdata,occ_bins)
     # calculate total number of bins
     mapw, maph = msg.info.width, msg.info.height
     total_bins = mapw*maph
+
     oc2 = occdata[0] + 1
+    rospy.loginfo(oc2)
     # set all values above 1 (i.e. above 0 in the original map data, representing occupied locations)
     oc3 = (oc2>1).choose(oc2,2)
-    rospy.loginfo(oc3[0:1])
+    rospy.loginfo(oc3)
+    pub = rospy.Publisher('oc3',Array,queue_size=10)
+    pub.publish(oc3)
     # reshape to 2D array using column order
     odata = np.uint8(oc3.reshape(msg.info.width,msg.info.height,order='F'))
-    odata[maph/2][mapw/2] = 1
+
 
 def rotatebot(rot_angle):
     global yaw
