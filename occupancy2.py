@@ -49,12 +49,15 @@ def callback(msg, tfBuffer):
     occ_mat = Int32MultiArray()
     occ_mat.layout.dim.append(MultiArrayDimension())
     occ_mat.layout.dim.append(MultiArrayDimension())
+    occ_mat.layout.dim.append(MultiArrayDimension())
     occ_mat.layout.dim[0].label = "height"
     occ_mat.layout.dim[1].label = "width"
     occ_mat.layout.dim[0].size = maph
     occ_mat.layout.dim[1].size = mapw
     occ_mat.layout.dim[0].stride = total_bins
     occ_mat.layout.dim[1].stride = mapw
+    occ_mat.layout.dim[2].label = "resolution"
+    occ_mat.layout.dim[2].size = float(msg.info.resolution)
     occ_mat.data = oc3
     pub = rospy.Publisher('occ_mat',Int32MultiArray,queue_size=10)
     pub.publish(occ_mat)
@@ -82,10 +85,10 @@ def callback(msg, tfBuffer):
     #adding marker to turtlebot
     
     # show image using grayscale ma
-    plt.imshow(translated,cmap ='gray')
-    plt.draw_all()
-    # pause to make sure the plot gets created
-    plt.pause(0.1)
+    # plt.imshow(translated,cmap ='gray')
+    # plt.draw_all()
+    # # pause to make sure the plot gets created
+    # plt.pause(0.1)
 
 
 def occupancy2():
@@ -99,8 +102,8 @@ def occupancy2():
     # subscribe to map occupancy data
     rospy.Subscriber('map', OccupancyGrid, callback, tfBuffer)
 
-    plt.ion()
-    plt.show()
+    # plt.ion()
+    # plt.show()
 
     # spin() simply keeps python from exiting until this node is stopped
     rospy.spin()

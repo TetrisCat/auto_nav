@@ -39,6 +39,7 @@ def distance(p0, p1):
 def get_pose(msg):
     global cur_pose
     cur_pose = (msg.pose.pose.position.x,msg.pose.pose.position.y)
+    # rospy.loginfo(cur_pose)
 
 def get_coords(msg):
     global occdata
@@ -69,6 +70,7 @@ def get_closest():
                     counter +=1
             if counter <2:
                 routelst.append(k)
+    rospy.loginfo(routelst)
     
     for k in routelst:
         distancelst.append(distance(k,cur_pose))

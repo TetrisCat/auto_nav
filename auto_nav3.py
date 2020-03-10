@@ -14,7 +14,7 @@ import time
 laser_range = np.array([])
 occdata = []
 yaw = 0.0
-rotate_speed = 0.1
+rotate_speed = 0.4
 linear_speed = 0.1
 stop_distance = 0.25
 occ_bins = [-1, 0, 100, 101]
@@ -60,8 +60,6 @@ def get_occupancy(msg):
     # set all values above 1 (i.e. above 0 in the original map data, representing occupied locations)
     oc3 = (oc2>1).choose(oc2,2)
     rospy.loginfo(oc3)
-    pub = rospy.Publisher('oc3',Array,queue_size=10)
-    pub.publish(oc3)
     # reshape to 2D array using column order
     odata = np.uint8(oc3.reshape(msg.info.width,msg.info.height,order='F'))
 
