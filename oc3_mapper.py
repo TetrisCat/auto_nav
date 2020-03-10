@@ -52,7 +52,7 @@ def get_occupancy(msg, tfBuffer):
     map_origin = msg.info.origin.position
     # get map grid positions for x, y position
     grid_x = round((cur_pos.x - map_origin.x) / map_res)
-    grid_y = round(((cur_pos.y - map_origin.y) / map_res))
+    grid_y = round((cur_pos.y - map_origin.y) / map_res)
     rospy.loginfo(['Grid Y: ' + str(grid_y) + ' Grid X: ' + str(grid_x)])
 
     # make occdata go from 0 instead of -1, reshape into 2D
