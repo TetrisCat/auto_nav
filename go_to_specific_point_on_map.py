@@ -25,57 +25,148 @@ import actionlib
 from actionlib_msgs.msg import *
 from geometry_msgs.msg import Pose, Point, Quaternion
 from nav_msgs.msg import Odometry
-from std_msgs.msg import Int32MultiArray,MultiArrayDimension
 import math
 import numpy as np
+from nav_msgs.msg import OccupancyGrid
+from sensor_msgs.msg import LaserScan
+from tf.transformations import euler_from_quaternion
+from geometry_msgs.msg import Twist
+from std_msgs.msg import Int32MultiArray,MultiArrayDimension
+from scipy import signal
+from PIL import Image
+import tf2_ros
+import cmath
 import time
 
+
 occdata = []
-occ_mat = []
+odata = []
+occ_bins = [-1, 0, 100, 101]
 cur_pose = ()
+map_res = 0.05
+target = (0,0)
+stop_distance = 0.25
+yaw = 0.0
+rotate_speed = 0.2
+linear_speed = 0.1
+laser_range = np.array([])
+front_angle = 10
+front_angles = range(-front_angle,front_angle+1,1)
+
+def get_occupancy(msg, tfBuffer):
+    global yaw
+    global map_res
+    global cur_pose
+    global odata
+    global target
+
+    # create numpy array
+    occdata = np.array([msg.data])
+    # compute histogram to identify percent of bins with -1
+    occ_counts = np.histogram(occdata,occ_bins)
+    # calculate total number of bins
+    total_bins = msg.info.width * msg.info.height
+    trans = tfBuffer.lookup_transform('map', 'base_link', rospy.Time(0))
+    cur_pos = trans.transform.translation
+    cur_rot = trans.transform.rotation
+    cur_pose = (cur_pos.x,cur_pos.y)
+    rospy.loginfo('Current Pose: x: %s, y: %s', str(cur_pose[0]),str(cur_pose[1]))
+
+    # rospy.loginfo(['Trans: ' + str(cur_pos)])
+    # rospy.loginfo(['Rot: ' + str(cur_rot)])
+
+    # get map resolution
+    map_res = msg.info.resolution
+    # get map origin struct has fields of x, y, and z
+    map_origin = msg.info.origin.position
+    # get map grid positions for x, y position
+    # grid_x = round((cur_pos.x - map_origin.x) / map_res)
+    # grid_y = round((cur_pos.y - map_origin.y) / map_res)
+    # rospy.loginfo(['Grid Y: ' + str(grid_y) + ' Grid X: ' + str(grid_x)])
+
+    # make occdata go from 0 instead of -1, reshape into 2D
+    oc2 = occdata + 1
+    # set all values above 1 (i.e. above 0 in the original map data, representing occupied locations)
+    oc3 = (oc2>1).choose(oc2,2)
+    # reshape to 2D array using column order
+    odata = np.uint8(oc3.reshape(msg.info.height,msg.info.width,order='F'))
+    # set current robot location to 0
+    # odata[grid_x][grid_y] = 0
+    # create image from 2D array using PIL
+    # img = Image.fromarray(odata.astype(np.uint8))
+    # # find center of image
+    # i_centerx = msg.info.width/2
+    # i_centery = msg.info.height/2
+    # translate by curr_pos - centerxy to make sure the rotation is performed
+    # with the robot at the center
+    # using tips from:
+    # https://stackabuse.com/affine-image-transformations-in-python-with-numpy-pillow-and-opencv/
+    # translation_m = np.array([[1, 0, (i_centerx-grid_y)],
+    #                            [0, 1, (i_centery-grid_x)],
+    #                            [0, 0, 1]])
+    # # Image.transform function requires the matrix to be inverted
+    # tm_inv = np.linalg.inv(translation_m)
+    # # translate the image so that the robot is at the center of the image
+    # img_transformed = img.transform((msg.info.height, msg.info.width),
+    #                                 Image.AFFINE,
+    #                                 data=tm_inv.flatten()[:6],
+    #                                 resample=Image.NEAREST)
+    matrix = np.transpose(np.asarray(odata))
+    adjusted = []
+    for row in matrix:
+        x = [num if num == 1 else 0 if num >=2 else 10 for num in row]
+        adjusted.append(x)
+    kernel = np.zeros((3,3)) + 1
+    #convoluting the matrix with kernel to sum up neigbors
+    #idea is to find boundary between 0s and 1s
+    output = signal.convolve2d(adjusted, kernel, boundary='fill',mode='same')
+    target = get_closest(matrix,output,cur_pose,map_res,(map_origin.x,map_origin.y))
+    rospy.loginfo('target coord: (%s,%s)',str(target[0]),str(target[1]))
+
+
+    # convert quaternion to Euler angles
+    orientation_list = [cur_rot.x, cur_rot.y, cur_rot.z, cur_rot.w]
+    (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
+    # rospy.loginfo(['Yaw: R: ' + str(yaw) + ' D: ' + str(np.degrees(yaw))])
+
+def stopbot():
+    # publish to cmd_vel to move TurtleBot
+    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
+
+    twist = Twist()
+    twist.linear.x = 0.0
+    twist.angular.z = 0.0
+    time.sleep(1)
+    pub.publish(twist)
+
+def goToGoal(target):
+    navigator = GoToPose()
+
+    # Customize the following values so they are appropriate for your location
+
+    position = {'x':target[0], 'y' : target[1]}
+    quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
+
+    rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
+    navigator.goto(position, quaternion)
+
 def distance(p0, p1):
     return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
 
-def get_pose(msg):
-    global cur_pose
-    cur_pose = (msg.pose.pose.position.x,msg.pose.pose.position.y)
-    # rospy.loginfo(cur_pose)
 
-def get_coords(msg):
-    global occdata
-    global occ_mat
-
-    occdata = np.array(msg.data)
-    maph = msg.layout.dim[0].size
-    mapw = msg.layout.dim[1].size
-    occ_mat = occdata.reshape(mapw,maph,order='F')
-
-def get_closest():
-    global occ_mat
-    global cur_pose
-
-    x = {coord:value for coord,value in np.ndenumerate(occ_mat)}
-    routelst = []
-    distancelst = []
-    for k,v in x.items():
-        if v == 2:
-            i = k[0]
-            j = k[1]
-            counter = 0
-            checkers = [-1,1]
-            for checker in checkers:
-                if x[(i+checker,j)] == 2:
-                    counter +=1
-                if x[(i,j+checker)] == 2:
-                    counter +=1
-            if counter <2:
-                routelst.append(k)
-    rospy.loginfo(routelst)
-    
-    for k in routelst:
-        distancelst.append(distance(k,cur_pose))
-    idx = np.argmin(distancelst)
-    return routelst[idx]
+def get_closest(original,adjusted,curpos,res,origin):
+    lst = []
+    for coord,val in np.ndenumerate(adjusted):
+        row = coord[0]
+        col = coord[1]
+        if val % 10 != 0 and original[row][col] == 0 and val > 30:
+            lst.append((col*res + origin[0],row*res + origin[1]))
+    # rospy.loginfo(lst)
+    distance_lst = []
+    for crd in lst:
+        distance_lst.append(distance(crd,curpos))
+    idx = np.argmax(distance_lst)
+    return lst[idx]
 
 
 class GoToPose():
@@ -127,31 +218,34 @@ class GoToPose():
         rospy.loginfo("Stop")
         rospy.sleep(1)
 
-if __name__ == '__main__':
-    try:
-        rospy.init_node('nav_test', anonymous=False)
-        rospy.Subscriber('odom',Odometry,get_pose)
-        rospy.Subscriber('occ_mat',Int32MultiArray,get_coords)
+def main():
+    global target
 
-        navigator = GoToPose()
+    rospy.init_node('nav_test',anonymous=False)
+    
+    tfBuffer = tf2_ros.Buffer()
+    tfListener = tf2_ros.TransformListener(tfBuffer)
+    rospy.sleep(3.0)
 
-        # Customize the following values so they are appropriate for your location
-        coords = get_closest()
+    rospy.Subscriber('map',OccupancyGrid,get_occupancy,tfBuffer)
+    rospy.sleep(3.0)
 
-        position = {'x': coords[0], 'y' : coords[1]}
-        quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
+    goToGoal(target)
 
-        rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
-        success = navigator.goto(position, quaternion)
+    rospy.on_shutdown(stopbot)
+    rate = rospy.Rate(5)
 
-        if success:
-            rospy.loginfo("Hooray, reached the desired pose")
-        else:
-            rospy.loginfo("The base failed to reach the desired pose")
+    while not rospy.is_shutdown():
+        goToGoal(target)
 
         # Sleep to give the last log messages time to be sent
-        rospy.sleep(1)
+        rate.sleep()
+        
 
+if __name__ == '__main__':
+    try:
+        main()
     except rospy.ROSInterruptException:
         rospy.loginfo("Ctrl-C caught. Quitting")
+        
 
