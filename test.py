@@ -1,36 +1,43 @@
 import math
 import numpy as np 
 import time
+from scipy import signal
+res = 0.05
+origin = (-10.0,-10.0)
+sig = [[1,0,2,0,2,1,2,3],
+    [1,0,4,2,1,3,2,1],
+    [2,1,2,4,0,2,1,3],
+    [1,3,2,1,4,2,0,1]]
 
-signal = [[1,0,2,0,2,1,2,3],[1,0,4,2,1,3,2,1],[2,1,2,4,0,2,1,3],[1,3,2,1,4,2,0,1]]
+adjusted = []
+
+cur_pose = (0,0)
+
+for row in sig:
+    x = [num if num == 1 else 0 if num >=2 else 10 for num in row]
+    adjusted.append(x)
+
+kernel = np.zeros((3,3)) + 1
+print(kernel)
+
+output = signal.convolve2d(adjusted, kernel, boundary='fill',mode='same')
+def distance(p0, p1):
+    return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
+
+def get_closest(original,adjusted,curpos,res,origin):
+    lst = []
+    for coord,val in np.ndenumerate(adjusted):
+        row = coord[0]
+        col = coord[1]
+        if val % 10 != 0 and original[row][col] != 2:
+            lst.append((col*res + origin[0],row*res + origin[1]))
+    
+    distance_lst = []
+    
+    for crd in lst:
+        distance_lst.append(distance(crd,curpos))
+    idx = np.argmin(distance_lst)
+    return lst[idx]
 
 
-def convolution(signal):
-    new_signal = []
-    final_sig = []
-    for row in signal:
-        signal_row = [num if num  <2 else 200 for num in row]
-        new_signal.append(signal_row)
-        final_sig.append([])
-
-    signal = new_signal
-    print(signal)
-    for i,j in np.ndenumerate(signal):
-        if i[0] == 0:
-            pass
-        elif i[0] == len(signal) - 1 :
-            pass
-        elif i[1] == 0:
-            pass
-        elif i[1] == len(signal[0]) -1:
-            pass
-        else:
-            val = signal[i[0]-1][i[1]-1] + signal[i[0]][i[1]-1] +signal[i[0]+1][i[1]-1] +\
-                signal[i[0]-1][i[1]] + signal[i[0]][i[1]] + signal[i[0]+1][i[1]] + \
-                    signal[i[0]-1][i[1]+1] + signal[i[0]][i[1]+1] + signal[i[0]+1][i[1]+1]
-            final_sig[i[0]].append(val)
-    return final_sig
-
-
-
-print(convolution(signal))
+print(get_closest(sig,output,cur_pose,res,origin))

@@ -22,7 +22,7 @@ print(occ_mat)
 
 img = Image.fromarray(occ_mat.astype(np.uint8))
 rotated = img.rotate(180)
-
+resol = 0.05
 def distance(p0, p1):
     return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
 
@@ -42,7 +42,7 @@ for k,v in x.items():
             if x[(i,j+checker)] == 2:
                 counter +=1
         if counter <2:
-            routelst.append(k)
+            routelst.append(tuple(np.array(k)*resol))
 
 for k in routelst:
     distancelst.append(distance(k,cur_pose))

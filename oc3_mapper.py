@@ -6,6 +6,7 @@ from sensor_msgs.msg import LaserScan
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Twist
 from std_msgs.msg import Int32MultiArray,MultiArrayDimension
+from scipy import signal
 import math
 import tf2_ros
 import cmath
@@ -62,25 +63,36 @@ def get_occupancy(msg, tfBuffer):
     # reshape to 2D array using column order
     odata = np.uint8(oc3.reshape(msg.info.height,msg.info.width,order='F'))
     # set current robot location to 0
-    # odata[grid_x][grid_y] = 0
+    odata[grid_x][grid_y] = 0
     # create image from 2D array using PIL
     # find center of image
-    # i_centerx = msg.info.width/2
-    # i_centery = msg.info.height/2
+    i_centerx = msg.info.width/2
+    i_centery = msg.info.height/2
     # translate by curr_pos - centerxy to make sure the rotation is performed
     # with the robot at the center
     # using tips from:
     # https://stackabuse.com/affine-image-transformations-in-python-with-numpy-pillow-and-opencv/
-    # translation_m = np.array([[1, 0, (i_centerx-grid_y)],
-    #                            [0, 1, (i_centery-grid_x)],
-    #                            [0, 0, 1]])
+    translation_m = np.array([[1, 0, (i_centerx-grid_y)],
+                               [0, 1, (i_centery-grid_x)],
+                               [0, 0, 1]])
     # # Image.transform function requires the matrix to be inverted
-    # tm_inv = np.linalg.inv(translation_m)
+    tm_inv = np.linalg.inv(translation_m)
     # # translate the image so that the robot is at the center of the image
-    # img_transformed = img.transform((msg.info.height, msg.info.width),
-    #                                 Image.AFFINE,
-    #                                 data=tm_inv.flatten()[:6],
-    #                                 resample=Image.NEAREST)
+    img_transformed = img.transform((msg.info.height, msg.info.width),
+                                    Image.AFFINE,
+                                    data=tm_inv.flatten()[:6],
+                                    resample=Image.NEAREST)
+    matrix = np.asarray(img_transformed)
+    adjusted = []
+    for row in matrix:
+        x = [num if num == 1 else 0.1 if num >=2 else 10 for num in row]
+        adjusted.append(x)
+    kernel = np.zeros((3,3)) + 1
+    #convoluting the matrix with kernel to sum up neigbors
+    #idea is to find boundary between 0s and 1s
+    output = signal.convolve2d(adjusted, kernel, boundary='fill',mode='same')
+    target = get_closest(matrix,output,(cur_pos.x,cur_pos.y),map_res,(map_origin.x,map_origin.y))
+
 
     # convert quaternion to Euler angles
     orientation_list = [cur_rot.x, cur_rot.y, cur_rot.z, cur_rot.w]
@@ -101,35 +113,20 @@ def get_laserscan(msg):
     # that are not zero appear to be useful
     laser_range[laser_range==0] = np.nan
 
-def get_closest():
-    global odata
-    global cur_pose
-    global map_res
-
-    x = {coord:value for coord,value in np.ndenumerate(odata)}
-    routelst = []
-    distancelst = []
-    for k,v in x.items():
-        if v == 2:
-            i = k[0]
-            j = k[1]
-            counter = 0
-            checkers = [-1,1]
-            for checker in checkers:
-                if x[(i+checker,j)] == 2:
-                    counter +=1
-                if x[(i,j+checker)] == 2:
-                    counter +=1
-            if counter <2:
-                routelst.append(tuple(np.array(k)*map_res))
+def get_closest(original,adjusted,curpos,res,origin):
+    lst = []
+    for coord,val in np.ndenumerate(adjusted):
+        row = coord[0]
+        col = coord[1]
+        if val % 10 != 0 and original[row][col] != 2:
+            lst.append((col*res + origin[0],row*res + origin[1]))
     
-    for k in routelst:
-        distancelst.append(distance(k,cur_pose))
-    try:
-        idx = np.argmin(distancelst)
-        return routelst[idx]
-    except ValueError:
-        return (0,0)
+    distance_lst = []
+    for crd in lst:
+        distance_lst.append(distance(crd,curpos))
+    idx = np.argmin(distance_lst)
+    return lst[idx]
+    
 
 
 def rotatebot(rot_angle):
