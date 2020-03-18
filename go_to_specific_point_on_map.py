@@ -90,27 +90,6 @@ def get_occupancy(msg, tfBuffer):
     oc3 = (oc2>1).choose(oc2,2)
     # reshape to 2D array using column order
     odata = np.uint8(oc3.reshape(msg.info.height,msg.info.width,order='F'))
-    # set current robot location to 0
-    # odata[grid_x][grid_y] = 0
-    # create image from 2D array using PIL
-    # img = Image.fromarray(odata.astype(np.uint8))
-    # # find center of image
-    # i_centerx = msg.info.width/2
-    # i_centery = msg.info.height/2
-    # translate by curr_pos - centerxy to make sure the rotation is performed
-    # with the robot at the center
-    # using tips from:
-    # https://stackabuse.com/affine-image-transformations-in-python-with-numpy-pillow-and-opencv/
-    # translation_m = np.array([[1, 0, (i_centerx-grid_y)],
-    #                            [0, 1, (i_centery-grid_x)],
-    #                            [0, 0, 1]])
-    # # Image.transform function requires the matrix to be inverted
-    # tm_inv = np.linalg.inv(translation_m)
-    # # translate the image so that the robot is at the center of the image
-    # img_transformed = img.transform((msg.info.height, msg.info.width),
-    #                                 Image.AFFINE,
-    #                                 data=tm_inv.flatten()[:6],
-    #                                 resample=Image.NEAREST)
     matrix = np.transpose(np.asarray(odata))
     adjusted = []
     for row in matrix:
@@ -154,6 +133,7 @@ def distance(p0, p1):
     return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
 
 
+
 def get_closest(original,adjusted,curpos,res,origin):
     lst = []
     for coord,val in np.ndenumerate(adjusted):
@@ -161,11 +141,10 @@ def get_closest(original,adjusted,curpos,res,origin):
         col = coord[1]
         if val % 10 != 0 and original[row][col] == 0 and val > 30:
             lst.append((col*res + origin[0],row*res + origin[1]))
-    # rospy.loginfo(lst)
-    distance_lst = []
-    for crd in lst:
-        distance_lst.append(distance(crd,curpos))
-    idx = np.argmax(distance_lst)
+    # rospy.loginfo(lst)    
+    distance_lst = [distance(crd,curpos) for crd in lst]
+
+    idx = np.argmin(distance_lst)
     return lst[idx]
 
 
@@ -182,7 +161,7 @@ class GoToPose():
 	rospy.loginfo("Wait for the action server to come up")
 
 	# Allow up to 5 seconds for the action server to come up
-	self.move_base.wait_for_server(rospy.Duration(5))
+	self.move_base.wait_for_server(rospy.Duration(2))
 
     def goto(self, pos, quat):
 
@@ -198,7 +177,7 @@ class GoToPose():
         self.move_base.send_goal(goal)
 
 	# Allow TurtleBot up to 60 seconds to complete task
-	success = self.move_base.wait_for_result(rospy.Duration(60)) 
+	success = self.move_base.wait_for_result(rospy.Duration(5)) 
 
         state = self.move_base.get_state()
         result = False
@@ -225,21 +204,19 @@ def main():
     
     tfBuffer = tf2_ros.Buffer()
     tfListener = tf2_ros.TransformListener(tfBuffer)
-    rospy.sleep(3.0)
-
+    rospy.sleep(1)
     rospy.Subscriber('map',OccupancyGrid,get_occupancy,tfBuffer)
     rospy.sleep(3.0)
 
     goToGoal(target)
 
     rospy.on_shutdown(stopbot)
-    rate = rospy.Rate(5)
+    rate = rospy.Rate(20)
 
     while not rospy.is_shutdown():
         goToGoal(target)
-
-        # Sleep to give the last log messages time to be sent
         rate.sleep()
+
         
 
 if __name__ == '__main__':
