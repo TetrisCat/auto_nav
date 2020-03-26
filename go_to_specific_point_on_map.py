@@ -144,7 +144,7 @@ def get_closest(original,adjusted,curpos,res,origin):
     # rospy.loginfo(lst)    
     distance_lst = [distance(crd,curpos) for crd in lst]
 
-    idx = np.argmin(distance_lst)
+    idx = len(distance_lst)//2
     return lst[idx]
 
 
@@ -161,7 +161,7 @@ class GoToPose():
 	rospy.loginfo("Wait for the action server to come up")
 
 	# Allow up to 5 seconds for the action server to come up
-	self.move_base.wait_for_server(rospy.Duration(2))
+	self.move_base.wait_for_server(rospy.Duration(5))
 
     def goto(self, pos, quat):
 
@@ -177,7 +177,7 @@ class GoToPose():
         self.move_base.send_goal(goal)
 
 	# Allow TurtleBot up to 60 seconds to complete task
-	success = self.move_base.wait_for_result(rospy.Duration(5)) 
+	success = self.move_base.wait_for_result(rospy.Duration(4)) 
 
         state = self.move_base.get_state()
         result = False
