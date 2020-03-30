@@ -73,6 +73,8 @@ def callback(msg, tfBuffer):
                                     Image.AFFINE,
                                     data=tm_inv.flatten()[:6],
                                     resample=Image.NEAREST)
+    
+
 
     # convert quaternion to Euler angles
     orientation_list = [cur_rot.x, cur_rot.y, cur_rot.z, cur_rot.w]
