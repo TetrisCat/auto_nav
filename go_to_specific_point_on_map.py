@@ -31,9 +31,11 @@ from nav_msgs.msg import OccupancyGrid
 from sensor_msgs.msg import LaserScan
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Int32MultiArray,MultiArrayDimension
+from std_msgs.msg import Int32MultiArray,MultiArrayDimension, String
 from scipy import signal
 from PIL import Image
+from sound_play.msg import SoundRequest
+from sound_play.libsoundplay import SoundClient
 import tf2_ros
 import cmath
 import time
@@ -52,6 +54,63 @@ linear_speed = 0.1
 laser_range = np.array([])
 front_angle = 10
 front_angles = range(-front_angle,front_angle+1,1)
+
+def closure(mapdata):
+    # This function checks if mapdata contains a closed contour. The function
+    # assumes that the raw map data from SLAM has been modified so that
+    # -1 (unmapped) is now 0, and 0 (unoccupied) is now 1, and the occupied
+    # values go from 1 to 101.
+
+    # According to: https://stackoverflow.com/questions/17479606/detect-closed-contours?rq=1
+    # closed contours have larger areas than arc length, while open contours have larger
+    # arc length than area. But in my experience, open contours can have areas larger than
+    # the arc length, but closed contours tend to have areas much larger than the arc length
+    # So, we will check for contour closure by checking if any of the contours
+    # have areas that are more than 10 times larger than the arc length
+    # This value may need to be adjusted with more testing.
+    ALTHRESH = 10
+    # We will slightly fill in the contours to make them easier to detect
+    DILATE_PIXELS = 3
+
+    # assumes mapdata is uint8 and consists of 0 (unmapped), 1 (unoccupied),
+    # and other positive values up to 101 (occupied)
+    # so we will apply a threshold of 2 to create a binary image with the
+    # occupied pixels set to 255 and everything else is set to 0
+    # we will use OpenCV's threshold function for this
+    ret,img2 = cv2.threshold(mapdata,2,255,0)
+    # we will perform some erosion and dilation to fill out the contours a
+    # little bit
+    element = cv2.getStructuringElement(cv2.MORPH_CROSS,(DILATE_PIXELS,DILATE_PIXELS))
+    # img3 = cv2.erode(img2,element)
+    img4 = cv2.dilate(img2,element)
+    # use OpenCV's findContours function to identify contours
+    # OpenCV version 3 changed the number of return arguments, so we
+    # need to check the version of OpenCV installed so we know which argument
+    # to grab
+    fc = cv2.findContours(img4, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+    (major, minor, _) = cv2.__version__.split(".")
+    if(major == '3'):
+        contours = fc[1]
+    else:
+        contours = fc[0]
+    # find number of contours returned
+    lc = len(contours)
+    # rospy.loginfo('# Contours: %s', str(lc))
+    # create array to compute ratio of area to arc length
+    cAL = np.zeros((lc,2))
+    for i in range(lc):
+        cAL[i,0] = cv2.contourArea(contours[i])
+        cAL[i,1] = cv2.arcLength(contours[i], True)
+
+    # closed contours tend to have a much higher area to arc length ratio,
+    # so if there are no contours with high ratios, we can safely say
+    # there are no closed contours
+    cALratio = cAL[:,0]/cAL[:,1]
+    # rospy.loginfo('Closure: %s', str(cALratio))
+    if np.any(cALratio > ALTHRESH):
+        return True
+    else:
+        return False
 
 def get_occupancy(msg, tfBuffer):
     global yaw
@@ -200,7 +259,7 @@ class GoToPose():
 def main():
     global target
 
-    rospy.init_node('nav_test',anonymous=False)
+    rospy.init_node('nav_test',anonymous=False,disable_signals=True)
     
     tfBuffer = tf2_ros.Buffer()
     tfListener = tf2_ros.TransformListener(tfBuffer)
@@ -215,6 +274,25 @@ def main():
 
     while not rospy.is_shutdown():
         goToGoal(target)
+
+        if closure(occdata):
+                # map is complete, so save current time into file
+                with open("maptime.txt", "w") as f:
+                    f.write("Elapsed Time: " + str(time.time() - start_time))
+                contourCheck = 0
+                # play a sound
+                soundhandle = SoundClient()
+                rospy.sleep(1)
+                soundhandle.stopAll()
+                soundhandle.play(SoundRequest.NEEDS_UNPLUGGING)
+                rospy.sleep(2)
+                # save the map
+                cv2.imwrite('mazemap.png',occdata)
+                pub = rospy.Publisher('mapdone',String)
+                pub.publish('Done!')
+                rospy.sleep(1)
+                rospy.signal_shutdown('Completed Mapping, closing autonav')
+
         rate.sleep()
 
         
