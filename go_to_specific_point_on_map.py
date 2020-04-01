@@ -36,6 +36,7 @@ from scipy import signal
 from PIL import Image
 from sound_play.msg import SoundRequest
 from sound_play.libsoundplay import SoundClient
+import cv2
 import tf2_ros
 import cmath
 import time
@@ -68,7 +69,7 @@ def closure(mapdata):
     # So, we will check for contour closure by checking if any of the contours
     # have areas that are more than 10 times larger than the arc length
     # This value may need to be adjusted with more testing.
-    ALTHRESH = 10
+    ALTHRESH = 5
     # We will slightly fill in the contours to make them easier to detect
     DILATE_PIXELS = 3
 
@@ -112,6 +113,8 @@ def closure(mapdata):
     else:
         return False
 
+
+
 def get_occupancy(msg, tfBuffer):
     global yaw
     global map_res
@@ -121,6 +124,7 @@ def get_occupancy(msg, tfBuffer):
 
     # create numpy array
     occdata = np.array([msg.data])
+
     # compute histogram to identify percent of bins with -1
     occ_counts = np.histogram(occdata,occ_bins)
     # calculate total number of bins
@@ -149,6 +153,7 @@ def get_occupancy(msg, tfBuffer):
     oc3 = (oc2>1).choose(oc2,2)
     # reshape to 2D array using column order
     odata = np.uint8(oc3.reshape(msg.info.height,msg.info.width,order='F'))
+    
     matrix = np.transpose(np.asarray(odata))
     adjusted = []
     for row in matrix:
@@ -177,16 +182,6 @@ def stopbot():
     time.sleep(1)
     pub.publish(twist)
 
-def goToGoal(target):
-    navigator = GoToPose()
-
-    # Customize the following values so they are appropriate for your location
-
-    position = {'x':target[0], 'y' : target[1]}
-    quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
-
-    rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
-    navigator.goto(position, quaternion)
 
 def distance(p0, p1):
     return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
@@ -258,7 +253,7 @@ class GoToPose():
 
 def main():
     global target
-
+    global odata
     rospy.init_node('nav_test',anonymous=False,disable_signals=True)
     
     tfBuffer = tf2_ros.Buffer()
@@ -267,15 +262,30 @@ def main():
     rospy.Subscriber('map',OccupancyGrid,get_occupancy,tfBuffer)
     rospy.sleep(3.0)
 
-    goToGoal(target)
+    # save start time
+    start_time = time.time()
+    # initialize variable to write elapsed time to file
+    contourCheck = 1
+
+    navigator = GoToPose()
+    position = {'x':target[0], 'y' : target[1]}
+    quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
+
+    rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
+    navigator.goto(position, quaternion)
 
     rospy.on_shutdown(stopbot)
-    rate = rospy.Rate(20)
+    rate = rospy.Rate(10)
 
     while not rospy.is_shutdown():
-        goToGoal(target)
+        position = {'x':target[0], 'y' : target[1]}
+        quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
 
-        if closure(occdata):
+        rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
+        navigator.goto(position, quaternion)
+
+        if contourCheck:
+            if closure(odata):
                 # map is complete, so save current time into file
                 with open("maptime.txt", "w") as f:
                     f.write("Elapsed Time: " + str(time.time() - start_time))
@@ -291,7 +301,8 @@ def main():
                 pub = rospy.Publisher('mapdone',String)
                 pub.publish('Done!')
                 rospy.sleep(1)
-                rospy.signal_shutdown('Completed Mapping, closing autonav')
+                rospy.signal_shutdown('Completed Mapping, closing autonav');
+                exit(0)
 
         rate.sleep()
 
