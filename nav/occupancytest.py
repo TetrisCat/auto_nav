@@ -16,13 +16,18 @@ import tf2_ros
 class getMap:
     
     def __init__(self):
-        self.sub = rospy.Subscriber('map',OccupancyGrid,self.get_occupancy,tfBuffer)
+        self.node = rospy.init_node('mapread',anonymous=False,disable_signals=True)
+        self.tfBuffer = tf2_ros.Buffer()
+        self.tfListener = tf2_ros.TransformListener(self.tfBuffer)
+        self.sub = rospy.Subscriber('map',OccupancyGrid,self.get_occupancy,self.tfBuffer)
         self.yaw = 0
         self.map_res = 0
         self.cur_pose = ()
         self.odata = []
         self.target = (0,0)
         self.quats = ()
+        self.occ_bins = [-1, 0, 100, 101]
+        self.map_res = 0.05
     
     def get_occupancy(self,msg,tfBuffer):
 
@@ -30,10 +35,10 @@ class getMap:
         occdata = np.array([msg.data])
 
         # compute histogram to identify percent of bins with -1
-        occ_counts = np.histogram(occdata,occ_bins)
+        occ_counts = np.histogram(occdata,self.occ_bins)
         # calculate total number of bins
         total_bins = msg.info.width * msg.info.height
-        trans = tfBuffer.lookup_transform('map', 'base_link', rospy.Time(0))
+        trans = self.tfBuffer.lookup_transform('map', 'base_link', rospy.Time(0))
         cur_pos = trans.transform.translation
         cur_rot = trans.transform.rotation
         self.cur_pose = (cur_pos.x,cur_pos.y)
@@ -65,4 +70,5 @@ class getMap:
         # # rospy.loginfo(['Yaw: R: ' + str(yaw) + ' D: ' + str(np.degrees(yaw))])
 
 newOne = getMap()
+time.sleep(3)
 print(newOne.cur_pose)
