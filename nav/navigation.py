@@ -31,7 +31,7 @@ from nav_msgs.msg import OccupancyGrid
 from sensor_msgs.msg import LaserScan
 from tf.transformations import euler_from_quaternion
 from geometry_msgs.msg import Twist
-from std_msgs.msg import Int32MultiArray, MultiArrayDimension, String
+from std_msgs.msg import Int32MultiArray,MultiArrayDimension, String
 from scipy import signal
 from PIL import Image
 from sound_play.msg import SoundRequest
@@ -49,18 +49,12 @@ cur_pose = ()
 map_res = 0.05
 target = (0,0)
 stop_distance = 0.25
-quats = ()
+yaw = 0.0
 rotate_speed = 0.2
 linear_speed = 0.1
 laser_range = np.array([])
 front_angle = 10
 front_angles = range(-front_angle,front_angle+1,1)
-toggle = True
-
-cmd_rotate = ''
-
-stored_pose = ()
-stored_quat = ()
 
 def closure(mapdata):
     # This function checks if mapdata contains a closed contour. The function
@@ -127,7 +121,6 @@ def get_occupancy(msg, tfBuffer):
     global cur_pose
     global odata
     global target
-    global quats
 
     # create numpy array
     occdata = np.array([msg.data])
@@ -142,9 +135,19 @@ def get_occupancy(msg, tfBuffer):
     cur_pose = (cur_pos.x,cur_pos.y)
     rospy.loginfo('Current Pose: x: %s, y: %s', str(cur_pose[0]),str(cur_pose[1]))
 
+    # rospy.loginfo(['Trans: ' + str(cur_pos)])
+    # rospy.loginfo(['Rot: ' + str(cur_rot)])
+
+    # get map resolution
     map_res = msg.info.resolution
     # get map origin struct has fields of x, y, and z
     map_origin = msg.info.origin.position
+    # get map grid positions for x, y position
+    # grid_x = round((cur_pos.x - map_origin.x) / map_res)
+    # grid_y = round((cur_pos.y - map_origin.y) / map_res)
+    # rospy.loginfo(['Grid Y: ' + str(grid_y) + ' Grid X: ' + str(grid_x)])
+
+    # make occdata go from 0 instead of -1, reshape into 2D
     oc2 = occdata + 1
     # set all values above 1 (i.e. above 0 in the original map data, representing occupied locations)
     oc3 = (oc2>1).choose(oc2,2)
@@ -165,31 +168,9 @@ def get_occupancy(msg, tfBuffer):
 
 
     # convert quaternion to Euler angles
-    quats = (cur_rot.x, cur_rot.y, cur_rot.z, cur_rot.w)
-    # (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
-    # # rospy.loginfo(['Yaw: R: ' + str(yaw) + ' D: ' + str(np.degrees(yaw))])
-
-def rotatebot(rot_angle):
-    global yaw
-
-    # create Twist object
-    twist = Twist()
-    # set up Publisher to cmd_vel topic
-    pub = rospy.Publisher('cmd_vel', Twist, queue_size=10)
-    # set the update rate to 1 Hz
-    rate = rospy.Rate(1)
-
-    twist.linear.x = 0.0
-    # set the direction to rotate
-    twist.angular.z = int(rot_angle) * rotate_speed
-    # start rotation
-    pub.publish(twist)
-
-    time.sleep(0.5)
-    twist.angular.z = 0.0
-    # stop the rotation
-    pub.publish(twist)
-
+    orientation_list = [cur_rot.x, cur_rot.y, cur_rot.z, cur_rot.w]
+    (roll, pitch, yaw) = euler_from_quaternion(orientation_list)
+    # rospy.loginfo(['Yaw: R: ' + str(yaw) + ' D: ' + str(np.degrees(yaw))])
 
 def stopbot():
     # publish to cmd_vel to move TurtleBot
@@ -205,10 +186,7 @@ def stopbot():
 def distance(p0, p1):
     return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
 
-def getRotate(msg):
-    global cmd_rotate
-    cmd_rotate = msg
-    
+
 
 def get_closest(original,adjusted,curpos,res,origin):
     lst = []
@@ -276,10 +254,6 @@ class GoToPose():
 def main():
     global target
     global odata
-    global cmd_rotate
-    global quats
-    global cur_pose
-
     rospy.init_node('nav_test',anonymous=False,disable_signals=True)
     
     tfBuffer = tf2_ros.Buffer()
@@ -303,58 +277,34 @@ def main():
     rospy.on_shutdown(stopbot)
     rate = rospy.Rate(10)
 
-    shutdown = False
+    while not rospy.is_shutdown():
+        position = {'x':target[0], 'y' : target[1]}
+        quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
 
-    while not shutdown:
-        while not cmd_rotate:
+        rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
+        navigator.goto(position, quaternion)
 
-            if contourCheck == 1:
-                if closure(odata):
-                    # map is complete, so save current time into file
-                    with open("maptime.txt", "w") as f:
-                        f.write("Elapsed Time: " + str(time.time() - start_time))
-                    contourCheck = 5
-                    # play a sound
-                    soundhandle = SoundClient()
-                    rospy.sleep(1)
-                    soundhandle.stopAll()
-                    soundhandle.play(SoundRequest.NEEDS_UNPLUGGING)
-                    rospy.sleep(2)
-                    # save the map
-                    cv2.imwrite('mazemap.png',occdata)
-                    pub = rospy.Publisher('mapdone',String)
-                    pub.publish('Done!')
-                    rospy.sleep(1)
-                    toggle = False
+        if contourCheck:
+            if closure(odata):
+                # map is complete, so save current time into file
+                with open("maptime.txt", "w") as f:
+                    f.write("Elapsed Time: " + str(time.time() - start_time))
+                contourCheck = 0
+                # play a sound
+                soundhandle = SoundClient()
+                rospy.sleep(1)
+                soundhandle.stopAll()
+                soundhandle.play(SoundRequest.NEEDS_UNPLUGGING)
+                rospy.sleep(2)
+                # save the map
+                cv2.imwrite('mazemap.png',occdata)
+                pub = rospy.Publisher('mapdone',String)
+                pub.publish('Done!')
+                rospy.sleep(1)
+                rospy.signal_shutdown('Completed Mapping, closing autonav');
+                exit(0)
 
-            if contourCheck == 5 and not stored_quat and not stored_pose:
-                position = {'x':stored_pose[0],'y':stored_pose[1]}
-                quaternion = {'r1' : stored_quat[0], 'r2' : stored_quat[1], 'r3' : stored_quat[2], 'r4' : stored_quat[3]}
-
-                while distance(cur_pose,stored_pose) > 3:
-                    rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
-                    navigator.goto(position, quaternion)
-
-                rospy.loginfo('Shooting Loc Reached')
-                pub2 = rospy.Publisher('alldone',String,queue_size = 10)
-                pub2.publish('Done')
-                time.sleep(1)
-                shutdown = True
-
-
-            if toggle or stored_quat or stored_pose:
-                position = {'x':target[0], 'y' : target[1]}
-                quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
-
-                rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
-                navigator.goto(position, quaternion)
-                rate.sleep()
-        
-        rotatebot(cmd_rotate)
-        cmd_rotate = ''
-        stored_pose = cur_pose
-        stored_quat = quats
-        
+        rate.sleep()
 
         
 
