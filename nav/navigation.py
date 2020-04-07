@@ -31,7 +31,6 @@ import cmath
 import time
 
 from occupancy import distance, getMap
-from closure import closure
 from movebase import GoToPose
 
 toggle = True
@@ -70,27 +69,30 @@ def main():
     shutdown = False
 
     while not shutdown:
-        while not cmd_rotate:
+        if contourCheck == 1:
+            if mind.closure():
+                # map is complete, so save current time into file
+                with open("maptime.txt", "w") as f:
+                    f.write("Elapsed Time: " + str(time.time() - start_time))
+                contourCheck = 5
+                # play a sound
+                soundhandle = SoundClient()
+                rospy.sleep(1)
+                soundhandle.stopAll()
+                soundhandle.play(SoundRequest.NEEDS_UNPLUGGING)
+                rospy.sleep(2)
+                # save the map
+                cv2.imwrite('mazemap.png',occdata)
+                pub = rospy.Publisher('mapdone',String)
+                pub.publish('Done!')
+                rospy.sleep(1)
+                shutdown = True
+            else:
+                position = {'x':mind.target[0], 'y' : mind.target[1]}
+                quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
 
-            if contourCheck == 1:
-                if closure(odata):
-                    # map is complete, so save current time into file
-                    with open("maptime.txt", "w") as f:
-                        f.write("Elapsed Time: " + str(time.time() - start_time))
-                    contourCheck = 5
-                    # play a sound
-                    soundhandle = SoundClient()
-                    rospy.sleep(1)
-                    soundhandle.stopAll()
-                    soundhandle.play(SoundRequest.NEEDS_UNPLUGGING)
-                    rospy.sleep(2)
-                    # save the map
-                    cv2.imwrite('mazemap.png',occdata)
-                    pub = rospy.Publisher('mapdone',String)
-                    pub.publish('Done!')
-                    rospy.sleep(1)
-                    shutdown = True
-        
+                rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
+                navigator.goto(position, quaternion)
 
 if __name__ == '__main__':
     try:

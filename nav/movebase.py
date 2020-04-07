@@ -3,6 +3,7 @@ import rospy
 import actionlib
 from actionlib_msgs.msg import *
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
+from geometry_msgs.msg import Pose, Point, Quaternion
 import time
 
 class GoToPose():

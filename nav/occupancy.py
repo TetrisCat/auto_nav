@@ -12,6 +12,7 @@ from std_msgs.msg import Int32MultiArray, MultiArrayDimension, String
 from scipy import signal
 from PIL import Image
 import tf2_ros
+import cv2
 
 def distance(p0, p1):
     return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
@@ -28,7 +29,7 @@ class getMap:
         self.cur_pose = ()
         self.odata = []
         self.target = (0,0)
-        self.quats = ()
+
         self.occ_bins = [-1, 0, 100, 101]
         self.map_res = 0.05
     
@@ -45,7 +46,7 @@ class getMap:
         cur_pos = trans.transform.translation
         cur_rot = trans.transform.rotation
         self.cur_pose = (cur_pos.x,cur_pos.y)
-        rospy.loginfo('Current Pose: x: %s, y: %s', str(cur_pose[0]),str(cur_pose[1]))
+        rospy.loginfo('Current Pose: x: %s, y: %s', str(self.cur_pose[0]),str(self.cur_pose[1]))
 
         map_res = msg.info.resolution
         # get map origin struct has fields of x, y, and z
@@ -67,11 +68,6 @@ class getMap:
         output = signal.convolve2d(adjusted, kernel, boundary='fill',mode='same')
         self.target = self.get_closest(matrix,output,self.cur_pose,self.map_res,(map_origin.x,map_origin.y))
         rospy.loginfo('target coord: (%s,%s)',str(self.target[0]),str(self.target[1]))
-
-        # convert quaternion to Euler angles
-        self.quats = (cur_rot.x, cur_rot.y, cur_rot.z, cur_rot.w)
-        (roll, pitch, self.yaw) = euler_from_quaternion(orientation_list)
-        # # rospy.loginfo(['Yaw: R: ' + str(yaw) + ' D: ' + str(np.degrees(yaw))])
 
     def get_closest(self,original,adjusted,curpos,res,origin):
         lst = []
