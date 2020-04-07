@@ -62,7 +62,8 @@ class getMap:
         #convoluting the matrix with kernel to sum up neigbors
         #idea is to find boundary between 0s and 1s
         output = signal.convolve2d(adjusted, kernel, boundary='fill',mode='same')
-
+        self.target = get_closest(matrix,output,self.cur_pose,self.map_res,(map_origin.x,map_origin.y))
+        rospy.loginfo('target coord: (%s,%s)',str(self.target[0]),str(self.target[1]))
 
         # convert quaternion to Euler angles
         self.quats = (cur_rot.x, cur_rot.y, cur_rot.z, cur_rot.w)
