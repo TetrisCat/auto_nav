@@ -31,8 +31,9 @@ def main():
                 else:
                     quatcheck = True
 
+
         # activates stepper to tilt payload cannon upwards
-        if quatcheck:
+        else:
             if diff_x and diff_y:
                 if abs(diff_y) > 5:
                     vert = '-1' if diff_x < 0 else '1'
