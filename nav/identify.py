@@ -36,8 +36,8 @@ class Detect:
         self.sub = rospy.Subscriber('raspicam_node/image/compressed',CompressedImage,self.getImg)
         self.imgH = 480
         self.imgW = 640
-        self.minH = 60
-        self.minW = 40
+        self.minH = 50
+        self.minW = 30
         self.toggle = True
         self.diff_x = 0
         self.diff_y = 0
@@ -73,7 +73,7 @@ class Detect:
                 if w >= self.minW and h >=self.minH:
                     dims= (self.imgW-x,self.imgH-y)
                     rospy.loginfo('Found corner at %s and %s',str(dims[0]),str(dims[1]))
-                    # center = (dims[0] - w//2,dims[1]-h//2)
+                    center = (dims[0] - w//2,dims[1]-h//2)
                     rospy.loginfo('Found target center at %s and %s',str(center[0]),str(center[1]))
                     self.diff_x = cnt_img[0] - center[0]
                     rospy.loginfo('x-axis diff : %s', str(self.diff_x))
