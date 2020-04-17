@@ -5,7 +5,7 @@ import math
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 
-from identify import Detect, distance
+from impidentify import Detect, distance
 
 def movebot():
     twist = Twist()
