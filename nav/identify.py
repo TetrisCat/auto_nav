@@ -66,7 +66,7 @@ class Detect:
             contours = imutils.grab_contours(contours)
             dims = (0,0)
 
-            cnt_img = (imgW//2,imgH//2)
+            cnt_img = (self.imgW//2,self.imgH//2)
             for c in contours:
                 peri = cv2.arcLength(c,True)
                 approx = cv2.approxPolyDP(c,0.04*peri,True)
