@@ -5,11 +5,10 @@ from std_msgs.msg import String
 
 from identify import Detect, distance
 
-color = 'red'
 
 def main():
 
-    detector = Detect(color)
+    detector = Detect()
 
     quatcheck = False
 

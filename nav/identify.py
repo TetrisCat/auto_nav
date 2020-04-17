@@ -27,8 +27,8 @@ class Detect:
     }
 
 
-    def __init__(self,color):
-        self.color = color
+    def __init__(self):
+        self.color = 'red'
         self.upper = np.array(mapping[self.color][1],dtype = "uint8")
         self.lower = np.array(mapping[self.color][0],dtype = "uint8")
         self.cv_image = []
