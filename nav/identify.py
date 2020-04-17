@@ -70,7 +70,7 @@ class Detect:
                 approx = cv2.approxPolyDP(c,0.04*peri,True)
 
                 x,y,w,h=cv2.boundingRect(np.float32(approx)) #returns rectangle object with xy cor of top left corner n width n height parameter
-                if w >= minWidth and h >= minHeight:
+                if w >= self.minW and h >=self.minH:
                     dims= (self.imgW-x,self.imgH-y)
                     rospy.loginfo('Found corner at %s and %s',str(dims[0]),str(dims[1]))
                     center = (dims[0] - w//2,dims[1]-h//2)

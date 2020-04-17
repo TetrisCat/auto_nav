@@ -35,9 +35,9 @@ def main():
 
         # activates stepper to tilt payload cannon upwards
         else:
-            if diff_x and diff_y:
-                if abs(diff_y) > 5:
-                    vert = '-1' if diff_x < 0 else '1'
+            if detector.diff_x and detector.diff_y:
+                if abs(detector.diff_y) > 5:
+                    vert = '-1' if detector.diff_y < 0 else '1'
                     rospy.loginfo('Calibrating Up/Down Aim. Publishing to cmd_stepper %s',vert)
                     pub2.publish(vert)
                 else:
