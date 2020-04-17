@@ -12,7 +12,7 @@ def main():
     detector = Detect()
 
     quatcheck = False
-
+    toggle = True
     rate = rospy.Rate(10)
     pub1 = rospy.Publisher('cmd_rotate',String,queue_size=10)
     pub2 = rospy.Publisher('cmd_stepper',String,queue_size=10)
@@ -27,6 +27,7 @@ def main():
             if detector.diff_x and detector.diff_y:
                 if abs(detector.diff_x) > 5:
                     horz = '-1' if detector.diff_x < 0 else '1'
+                    rospy.loginfo('Calibrating Left/Right Aim. Publishing to cmd_rotate %s',horz)
                     pub1.publish(horz)
                 else:
                     quatcheck = True
@@ -37,8 +38,10 @@ def main():
             if diff_x and diff_y:
                 if abs(diff_y) > 5:
                     vert = '-1' if diff_x < 0 else '1'
+                    rospy.loginfo('Calibrating Up/Down Aim. Publishing to cmd_stepper %s',vert)
                     pub2.publish(vert)
                 else:
+                    rospy.loginfo('Calibration Complete. Firing!')
                     pub2.publish('10')
                     rospy.sleep(1)
                     toggle = False

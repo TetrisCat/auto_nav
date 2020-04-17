@@ -22,15 +22,14 @@ def distance(p0, p1):
 
 class Detect:
 
-    mapping = {
-    'red': ([17,15,100],[50,56,200])
-    }
-
 
     def __init__(self):
         self.color = 'red'
-        self.upper = np.array(mapping[self.color][1],dtype = "uint8")
-        self.lower = np.array(mapping[self.color][0],dtype = "uint8")
+        self.mapping = {
+            'red': ([17,15,100],[50,56,200])
+        }
+        self.upper = np.array(self.mapping[self.color][1],dtype = "uint8")
+        self.lower = np.array(self.mapping[self.color][0],dtype = "uint8")
         self.cv_image = []
         self.node = rospy.init_node('nav_test',anonymous=False,disable_signals=True)
         rospy.sleep(1.5)
