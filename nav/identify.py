@@ -51,6 +51,8 @@ class Detect:
 
     def readImg(self):
         if not self.cv_image:
+            rospy.loginfo('cv_image is still blank~')
+            rospy.sleep(1)
             pass
         else:
             mask=cv2.inRange(self.cv_image, self.lower, self.upper) # binary mask of white n black pixel
