@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 import imutils
 import rospy
-from sensor_msgs.msg import Image
+from sensor_msgs.msg import CompressedImage
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from cv_bridge import CvBridge
@@ -33,7 +33,7 @@ class Detect:
         self.cv_image = []
         self.node = rospy.init_node('nav_test',anonymous=False,disable_signals=True)
         rospy.sleep(1.5)
-        self.sub = rospy.Subscriber('raspicam_node',Image,self.getImg)
+        self.sub = rospy.Subscriber('raspicam_node/image/compressed',CompressedImage,self.getImg)
         self.imgH = 480
         self.imgW = 640
         self.minH = 60
@@ -43,9 +43,7 @@ class Detect:
         self.diff_y = 0
     
     def getImg(self,msg):
-        self.imgH = msg.height
-        self.imgW = msg.width
-        self.cv_image = bridge.imgmsg_to_cv2(msg)
+        self.cv_image = bridge.compressed_imgmsg_to_cv2(msg)
 
 
 
