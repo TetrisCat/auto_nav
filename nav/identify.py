@@ -50,30 +50,33 @@ class Detect:
 
 
     def readImg(self):
-        mask=cv2.inRange(self.cv_image, self.lower, self.upper) # binary mask of white n black pixel
-        #cv2.imshow('mask',mask)
-        result=cv2.bitwise_and(self.cv_image, self.cv_image, mask=mask)
-        #cv2.imshow('images',np.hstack([image,result]))
-        cv2.waitKey(0)
-        result=np.array(result)  
-        #cv2.imshow('result2',result)
-        contours=cv2.findContours(mask,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
-        contours = imutils.grab_contours(contours)
-        dims = (0,0)
+        if not self.cv_image:
+            pass
+        else:
+            mask=cv2.inRange(self.cv_image, self.lower, self.upper) # binary mask of white n black pixel
+            #cv2.imshow('mask',mask)
+            result=cv2.bitwise_and(self.cv_image, self.cv_image, mask=mask)
+            #cv2.imshow('images',np.hstack([image,result]))
+            cv2.waitKey(0)
+            result=np.array(result)  
+            #cv2.imshow('result2',result)
+            contours=cv2.findContours(mask,cv2.RETR_LIST,cv2.CHAIN_APPROX_SIMPLE)
+            contours = imutils.grab_contours(contours)
+            dims = (0,0)
 
-        cnt_img = (imgW//2,imgH//2)
-        for c in contours:
-            peri = cv2.arcLength(c,True)
-            approx = cv2.approxPolyDP(c,0.04*peri,True)
+            cnt_img = (imgW//2,imgH//2)
+            for c in contours:
+                peri = cv2.arcLength(c,True)
+                approx = cv2.approxPolyDP(c,0.04*peri,True)
 
-            x,y,w,h=cv2.boundingRect(np.float32(approx)) #returns rectangle object with xy cor of top left corner n width n height parameter
-            if w >= minWidth and h >= minHeight:
-                dims= (self.imgW-x,self.imgH-y)
-                rospy.loginfo('Found corner at %s and %s',str(dims[0]),str(dims[1]))
-                center = (dims[0] - w//2,dims[1]-h//2)
-                self.diff_x = cnt_img[0] - center[0]
-                self.diff_y = cnt_img[1] - center[1]
-                break
+                x,y,w,h=cv2.boundingRect(np.float32(approx)) #returns rectangle object with xy cor of top left corner n width n height parameter
+                if w >= minWidth and h >= minHeight:
+                    dims= (self.imgW-x,self.imgH-y)
+                    rospy.loginfo('Found corner at %s and %s',str(dims[0]),str(dims[1]))
+                    center = (dims[0] - w//2,dims[1]-h//2)
+                    self.diff_x = cnt_img[0] - center[0]
+                    self.diff_y = cnt_img[1] - center[1]
+                    break
             
 
 
