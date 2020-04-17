@@ -48,7 +48,7 @@ class Detect:
 
 
     def readImg(self):
-        if self.cv_image == []
+        if self.cv_image == []:
             rospy.loginfo('cv_image is still blank~')
             rospy.sleep(1)
             pass
@@ -73,9 +73,12 @@ class Detect:
                 if w >= self.minW and h >=self.minH:
                     dims= (self.imgW-x,self.imgH-y)
                     rospy.loginfo('Found corner at %s and %s',str(dims[0]),str(dims[1]))
-                    center = (dims[0] - w//2,dims[1]-h//2)
+                    # center = (dims[0] - w//2,dims[1]-h//2)
+                    rospy.loginfo('Found target center at %s and %s',str(center[0]),str(center[1]))
                     self.diff_x = cnt_img[0] - center[0]
+                    rospy.loginfo('x-axis diff : %s', str(self.diff_x))
                     self.diff_y = cnt_img[1] - center[1]
+                    rospy.loginfo('y-axis diff : %s', str(self.diff_y))
                     break
             
 
