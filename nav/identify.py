@@ -48,7 +48,7 @@ class Detect:
 
 
     def readImg(self):
-        if not self.cv_image:
+        if self.cv_image == []
             rospy.loginfo('cv_image is still blank~')
             rospy.sleep(1)
             pass
