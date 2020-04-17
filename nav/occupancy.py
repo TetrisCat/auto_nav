@@ -133,6 +133,8 @@ class getMap:
         # so if there are no contours with high ratios, we can safely say
         # there are no closed contours
         cALratio = cAL[:,0]/cAL[:,1]
+        maxval = np.argmax(cALratio)
+        rospy.loginfo("cALratio is %f",cALratio)
         # rospy.loginfo('Closure: %s', str(cALratio))
         if np.any(cALratio > ALTHRESH):
             return True

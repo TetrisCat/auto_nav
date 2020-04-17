@@ -82,7 +82,7 @@ def main():
                 soundhandle.play(SoundRequest.NEEDS_UNPLUGGING)
                 rospy.sleep(2)
                 # save the map
-                cv2.imwrite('mazemap.png',occdata)
+                cv2.imwrite('mazemap.png',mind.odata)
                 pub = rospy.Publisher('mapdone',String)
                 pub.publish('Done!')
                 rospy.sleep(1)
