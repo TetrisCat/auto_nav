@@ -26,7 +26,7 @@ class Detect:
     def __init__(self):
         self.color = 'red'
         self.mapping = {
-            'red': ([0,50,20],[5,255,255])
+            'red': ([160,65,65],[179,255,255])
         }
         self.upper = np.array(self.mapping[self.color][1],dtype = "uint8")
         self.lower = np.array(self.mapping[self.color][0],dtype = "uint8")
