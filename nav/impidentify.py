@@ -36,8 +36,8 @@ class Detect:
         self.sub = rospy.Subscriber('raspicam_node/image/compressed',CompressedImage,self.getImg)
         self.imgH = 480
         self.imgW = 640
-        self.minH = 50
-        self.minW = 30
+        self.minH = 20
+        self.minW = 10
         self.toggle = True
         self.diff_x = 0
         self.diff_y = 0
