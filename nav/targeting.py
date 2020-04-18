@@ -65,20 +65,24 @@ def main():
                     rotatebot(horz)
                 else:
                     quatcheck = True
-
-
-        # activates stepper to tilt payload cannon upwards
-        else:
-            if detector.diff_x and detector.diff_y:
-                if abs(detector.diff_y) > 20:
-                    vert = '-1' if detector.diff_y < 0 else '1'
-                    rospy.loginfo('Calibrating Up/Down Aim. Publishing to cmd_stepper %s',vert)
-                    pub2.publish(vert)
-                else:
                     rospy.loginfo('Calibration Complete. Firing!')
                     pub2.publish('10')
                     rospy.sleep(1)
                     toggle = False
+
+
+        # activates stepper to tilt payload cannon upwards
+        # else:
+        #     if detector.diff_x and detector.diff_y:
+        #         if abs(detector.diff_y) > 20:
+        #             vert = '-1' if detector.diff_y < 0 else '1'
+        #             rospy.loginfo('Calibrating Up/Down Aim. Publishing to cmd_stepper %s',vert)
+        #             pub2.publish(vert)
+        #         else:
+        #             rospy.loginfo('Calibration Complete. Firing!')
+        #             pub2.publish('10')
+        #             rospy.sleep(1)
+        #             toggle = False
 
         rate.sleep()
 
