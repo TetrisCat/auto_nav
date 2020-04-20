@@ -24,7 +24,7 @@
 
 **Identification**
 
-![Identification Demo](http://g.recordit.co/xX2mprxzCk.gif)
+![Identification Demo](http://g.recordit.co/2K4EPKrPUP.gif)
 
 ---
 
