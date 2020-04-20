@@ -20,7 +20,7 @@
 
 **Navigation**
 
-![Navigation Demo](http://g.recordit.co/OMAq4F1Exh.gif)
+![Navigation Demo](http://g.recordit.co/djAfyWPYMy.gif)
 
 **Identification**
 
