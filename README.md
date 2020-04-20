@@ -25,9 +25,7 @@
 
 ---
 
-## Table of Contents (Optional)
-
-> If your `README` has a lot of info, section headers might be nice.
+## Table of Contents 
 
 - [Installation](#installation)
 - [Usage](#usage)
@@ -119,7 +117,7 @@ $ rosrun auto_nav targeting.py
 ```
 ---
 
-## Documentation (Optional)
+## Documentation 
 
 > navigation.py
 - Main python script: Requires turtlebot bringup and launch of move_base script
@@ -139,7 +137,7 @@ $ rosrun auto_nav targeting.py
 - Contains class to subscribe to image topic and process it via OpenCV
 
 ---
-## Tests (Optional)
+## Tests
 
 - Used Turtlebot Gazebo for testing : http://wiki.ros.org/turtlebot_gazebo
 
