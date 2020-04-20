@@ -17,16 +17,14 @@
 
 [(https://imgur.com/a/fxZWLvI)]()
 
-- Use <a href="http://recordit.co/" target="_blank">**Recordit**</a> to create quicks screencasts of your desktop and export them as `GIF`s.
-- For terminal sessions, there's <a href="https://github.com/chjj/ttystudio" target="_blank">**ttystudio**</a> which also supports exporting `GIF`s.
 
-**Recordit**
+**Navigation**
 
-![Recordit GIF](http://g.recordit.co/iLN6A0vSD8.gif)
+![Navigation Demo](http://g.recordit.co/9nRlbP8baV.gif)
 
-**ttystudio**
+**Identification**
 
-![ttystudio GIF](https://raw.githubusercontent.com/chjj/ttystudio/master/img/example.gif)
+![Identification Demo](http://g.recordit.co/Cvv0cIf7WX.gif)
 
 ---
 
@@ -95,7 +93,7 @@ pi@raspberrypi: ~ $ roslaunch eg2310 turtlebot3_nav_sim.launch
 ```shell
 $ rosrun auto_nav navigation.py
 ```
-### Identificaiton
+### Identification
 
 ***Turtlebot3***
 
@@ -155,57 +153,31 @@ $ rosrun auto_nav targeting.py
 
 # AWESOME TEAM OF GROUP7
 
-### Teo Rumin
-
-### Tham Kai Wen
-<a href = "https://sg.linkedin.com/in/tham-kai-wen-2679b2184"><img src="https://hcastro.org/temp_photos/kaiwen.JPG"></a>
-
-### Cyril Aoun
-
-### Adric Pang
-
-### MAGIK MAN 
-
-
-
-| <a href="http://fvcproductions.com" target="_blank">**FVCproductions**</a> | <a href="http://fvcproductions.com" target="_blank">**FVCproductions**</a> | <a href="http://fvcproductions.com" target="_blank">**FVCproductions**</a> |
+| <a href="https://sg.linkedin.com/in/tham-kai-wen-2679b2184" target="_blank">**Tham Kai Wen**</a> | **Teo Rumin** | **Cyril Aoun**|
 | :---: |:---:| :---:|
-| [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com)    | [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com) | [![FVCproductions](https://avatars1.githubusercontent.com/u/4284691?v=3&s=200)](http://fvcproductions.com)  |
-| <a href="http://github.com/fvcproductions" target="_blank">`github.com/fvcproductions`</a> | <a href="http://github.com/fvcproductions" target="_blank">`github.com/fvcproductions`</a> | <a href="http://github.com/fvcproductions" target="_blank">`github.com/fvcproductions`</a> |
+| [![Tham Kai Wen](https://hcastro.org/temp_photos/kaiwen.JPG)](https://sg.linkedin.com/in/tham-kai-wen-2679b2184)    | ![Teo Rumin](https://www.shutterstock.com/image-vector/profile-blank-icon-empty-photo-male-535853269) | ![Cyril Aoun](https://www.shutterstock.com/image-vector/profile-blank-icon-empty-photo-male-535853269)   |
 
-- You can just grab their GitHub profile image URL
-- You should probably resize their picture using `?s=200` at the end of the image URL.
+|**Adric Pang** | **Mohamed Faris** |
+| :---: |:---:| 
+| ![Adric Pang](https://www.shutterstock.com/image-vector/profile-blank-icon-empty-photo-male-535853269)   | ![Mohamed Faris](https://www.shutterstock.com/image-vector/profile-blank-icon-empty-photo-male-535853269) | 
 
 ---
+## Special Thanks
 
+# HUGE shoutout to the following people who were amazing:
+
+- Sim Zhi Min
+- Eugene EE
+- Dr Yen
+- Soh Eng Keng
+- Ms Annie
+
+---
 ## FAQ
 
-- **How do I do *specifically* so and so?**
+- **How do I do this?**
     - No problem! Just do this.
 ---
 
-## Support
-
-Reach out to me at one of the following places!
-
-- Website at <a href="http://fvcproductions.com" target="_blank">`fvcproductions.com`</a>
-- Twitter at <a href="http://twitter.com/fvcproductions" target="_blank">`@fvcproductions`</a>
-- Insert more social links here.
-
----
-
-## Donations (Optional)
-
-- You could include a <a href="https://cdn.rawgit.com/gratipay/gratipay-badge/2.3.0/dist/gratipay.png" target="_blank">Gratipay</a> link as well.
-
-[![Support via Gratipay](https://cdn.rawgit.com/gratipay/gratipay-badge/2.3.0/dist/gratipay.png)](https://gratipay.com/fvcproductions/)
 
 
----
-
-## License
-
-[![License](http://img.shields.io/:license-mit-blue.svg?style=flat-square)](http://badges.mit-license.org)
-
-- **[MIT license](http://opensource.org/licenses/mit-license.php)**
-- Copyright 2015 © <a href="http://fvcproductions.com" target="_blank">FVCproductions</a>.
