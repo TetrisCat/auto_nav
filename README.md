@@ -13,7 +13,7 @@
 
 - Tested and ran on ROS1 Kinetic
 
-![Turtlebot3 CAD Design](https://imgur.com/a/mRTTEit)
+![Turtlebot3 CAD Design](https://i.imgur.com/hSwf48f.jpg)
 
 **Navigation**
 
@@ -152,11 +152,11 @@ $ rosrun auto_nav targeting.py
 
 | <a href="https://sg.linkedin.com/in/tham-kai-wen-2679b2184" target="_blank">**Tham Kai Wen**</a> | **Teo Rumin** | **Cyril Aoun**|
 | :---: |:---:| :---:|
-| [![Tham Kai Wen](https://hcastro.org/temp_photos/kaiwen.JPG)](https://sg.linkedin.com/in/tham-kai-wen-2679b2184)    | ![Teo Rumin](https://imgur.com/a/taire7r) | ![Cyril Aoun]https://imgur.com/a/taire7r)   |
+| [![Tham Kai Wen](https://hcastro.org/temp_photos/kaiwen.JPG)](https://sg.linkedin.com/in/tham-kai-wen-2679b2184)    | ![Teo Rumin](https://i.imgur.com/CKrEBcR.jpg) | ![Cyril Aoun](https://i.imgur.com/CKrEBcR.jpg)   |
 
 |**Adric Pang** | **Mohamed Faris** |
 | :---: |:---:| 
-| ![Adric Pang](https://imgur.com/a/taire7r)   | ![Mohamed Faris](https://imgur.com/a/taire7r) | 
+| ![Adric Pang](https://i.imgur.com/CKrEBcR.jpg)   | ![Mohamed Faris](https://i.imgur.com/CKrEBcR.jpg) | 
 
 ---
 ## Special Thanks
