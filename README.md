@@ -13,14 +13,10 @@
 
 - Tested and ran on ROS1 Kinetic
 
-***INSERT ANOTHER GRAPHIC HERE***
-
-[(https://imgur.com/a/fxZWLvI)]()
-
 
 **Navigation**
 
-![Navigation Demo](http://g.recordit.co/djAfyWPYMy.gif)
+![Navigation Demo](http://g.recordit.co/5wSRAncNUs.gif)
 
 **Identification**
 
