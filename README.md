@@ -16,7 +16,7 @@
 
 **Navigation**
 
-![Navigation Demo](http://g.recordit.co/5wSRAncNUs.gif)
+![Navigation Demo](http://g.recordit.co/XOr6LkQzB8.gif)
 
 **Identification**
 
