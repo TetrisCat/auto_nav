@@ -23,12 +23,12 @@ class getMap:
         self.node = rospy.init_node('mapread',anonymous=False,disable_signals=True)
         self.tfBuffer = tf2_ros.Buffer()
         self.tfListener = tf2_ros.TransformListener(self.tfBuffer)
-        self.sub = rospy.Subscriber('map',OccupancyGrid,self.get_occupancy,self.tfBuffer)
+        self.sub = rospy.Subscriber('map',OccupancyGrid,self.get_occupancy,self.tfBuffer) # Subsribes to the map topic
         self.yaw = 0
         self.map_res = 0
         self.cur_pose = ()
         self.odata = []
-        self.target = (0,0)
+        self.target = (0,0) 
 
         self.occ_bins = [-1, 0, 100, 101]
         self.map_res = 0.05
@@ -64,11 +64,15 @@ class getMap:
             adjusted.append(x)
         kernel = np.zeros((3,3)) + 1
         #convoluting the matrix with kernel to sum up neigbors
-        #idea is to find boundary between 0s and 1s
+        #idea is to find boundary between 0s and 1s (between unknown and unoccupied)
         output = signal.convolve2d(adjusted, kernel, boundary='fill',mode='same')
+
+        #setting target goal by calling get_closest function
         self.target = self.get_closest(matrix,output,self.cur_pose,self.map_res,(map_origin.x,map_origin.y))
         rospy.loginfo('target coord: (%s,%s)',str(self.target[0]),str(self.target[1]))
 
+    # Script to find the most appropriate target destination 
+    # relative to current position by calculating distances
     def get_closest(self,original,adjusted,curpos,res,origin):
         lst = []
         for coord,val in np.ndenumerate(adjusted):
@@ -79,7 +83,10 @@ class getMap:
         # rospy.loginfo(lst)    
         distance_lst = [distance(crd,curpos) for crd in lst]
 
+        ## Current algorithm set to find median
         idx = len(distance_lst)//2
+        # idx = np.argmin(distance_lst)
+        # Uncomment above to find target goal by shortest distance instead
         return lst[idx]
 
     def closure(self):
