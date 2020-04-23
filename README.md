@@ -162,7 +162,7 @@ $ rosrun auto_nav targeting.py
 ---
 ## Tests
 
-- Used Turtlebot Gazebo for testing : http://wiki.ros.org/turtlebot_gazebo
+- Used [Turtlebot Gazebo](http://wiki.ros.org/turtlebot_gazebo) for testing : http://wiki.ros.org/turtlebot_gazebo
 
 <a href="http://wiki.ros.org/turtlebot_gazebo"><img src="https://emanual.robotis.com/assets/images/platform/turtlebot3/simulation/turtlebot3_world_bugger.png"> </a>
 
