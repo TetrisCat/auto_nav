@@ -122,11 +122,11 @@ $ rosrun auto_nav targeting.py
 ---
 ## Documentation 
 
-> navigation.py
+### navigation.py
 - Main python script: Requires turtlebot bringup and launch of move_base script
 - Imports from occupancy.py and movebase.py
 
-> occupancy.py
+### occupancy.py
 - Goal - based algorithm using RSLAM gmapping
 - `get_occupancy(self,msg,tbuffer)` takes data from [nav_msgs/OccupancyGrid](http://docs.ros.org/api/nav_msgs/html/msg/OccupancyGrid.html)
     - It finds the boundary lines between Unoccupied(0) and Unknown(-1)
@@ -137,19 +137,19 @@ $ rosrun auto_nav targeting.py
 - `closure(self)` checks if the mapping has been completed by checking for map contours
     - Adjust **ALTHRESH** value up or down to have a higher or lower tolerance for completed mapping
 
-> movebase.py
+### movebase.py
 - Calls up move_base as that in navigation stack
 - `goto(self, pos, quat)` is the main class method to moe the turtlebot to target goal
     - Adjust `self.move_base.wait_for_result(rospy.Duration(4))` value if need be to optimise performance
 - More move_base parameters to adjust can be found at https://github.com/adricpjw/eg2310_nav
 
-> targeting.py
+### targeting.py
 - Main script for identification and targeting
 - Imports from **impidentify.py**
 - Large parts were commented due to faulty stepper and unintegrated navigation + targeting. These can be uncommented for a fully functional integrated solution
 - `detector = Detect('red')` initialises the class Detect to detect red targets. Change the color if necessary
 
-> impidentify.py
+### impidentify.py
 - Contains class to subscribe to image topic and process it via OpenCV
 - `self.imgH` and `self.imgW` can be adjusted for cameras with different resolution
     - Rpi Camera v2 has resolution of 640 x 480
