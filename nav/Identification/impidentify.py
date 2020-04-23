@@ -25,11 +25,6 @@ if find_hsv:
     cv2.namedWindow('frame')
     cv2.setMouseCallback('frame',on_mouse_click)
 
-
-def dprint(s):
-    if D_PRINT:
-        print(s)
-
 def distance(p0, p1):
     return math.sqrt((p0[0] - p1[0])**2 + (p0[1] - p1[1])**2)
 
@@ -56,7 +51,7 @@ class Detect:
         # 15x5 works well for detecting target even from further away 
         # as long as the hsv color range
         # is strict enough to only detect the target
-        self.toggle = True
+        self.found = False
         self.diff_x = 0
         self.diff_y = 0
     
@@ -92,6 +87,7 @@ class Detect:
 
                 x,y,w,h=cv2.boundingRect(np.float32(approx)) #returns rectangle object with xy cor of top left corner n width n height parameter
                 if w >= self.minW and h >=self.minH:
+                    self.found = True
                     dims= (self.imgW-x,self.imgH-y) # Dimensions of the target rectangle
                     rospy.loginfo('Found corner at %s and %s',str(dims[0]),str(dims[1]))
                     center = (dims[0] - w//2,dims[1]-h//2) # Finding center point of target

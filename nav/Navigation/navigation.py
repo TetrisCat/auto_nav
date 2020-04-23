@@ -78,33 +78,33 @@ def main():
     rate = rospy.Rate(10)
 
     shutdown = False
-
+    target_found = False
     while not shutdown:
-        if contourCheck == 1:
-            if mind.closure():
-                # map is complete, so save current time into file
-                with open("maptime.txt", "w") as f:
-                    f.write("Elapsed Time: " + str(time.time() - start_time))
-                contourCheck = 5
-                # play a sound
-                soundhandle = SoundClient()
-                rospy.sleep(1)
-                soundhandle.stopAll()
-                soundhandle.play(SoundRequest.NEEDS_UNPLUGGING)
-                rospy.sleep(2)
-                # save the map
-                cv2.imwrite('mazemap.png',mind.odata)
-                # Publisher to let the indentification script know that mapping is done
-                pub = rospy.Publisher('mapdone',String)
-                pub.publish('Done!')
-                rospy.sleep(1)
-                shutdown = True # No longer need to run this script if mapping is done
-            else:
-                position = {'x':mind.target[0], 'y' : mind.target[1]}
-                quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
+        
+        if mind.closure():
+            # map is complete, so save current time into file
+            with open("maptime.txt", "w") as f:
+                f.write("Elapsed Time: " + str(time.time() - start_time))
+            # play a sound
+            soundhandle = SoundClient()
+            rospy.sleep(1)
+            soundhandle.stopAll()
+            soundhandle.play(SoundRequest.NEEDS_UNPLUGGING)
+            rospy.sleep(2)
+            # save the map
+            cv2.imwrite('mazemap.png',mind.odata)
+            # Publisher to let the indentification script know that mapping is done
+            pub = rospy.Publisher('mapdone',String) # To let targeting script know that mapping is complete
+            pub.publish('Done!')
+            rospy.sleep(1)
+            shutdown = True # No longer need to run this script if mapping is done
+        else:
+            position = {'x':mind.target[0], 'y' : mind.target[1]}
+            quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
 
-                rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
-                navigator.goto(position, quaternion)
+            rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
+            navigator.goto(position, quaternion)
+    
 
 if __name__ == '__main__':
     try:
