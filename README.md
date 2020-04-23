@@ -100,13 +100,13 @@ pi@raspberrypi: ~ $ roslaunch turtlebot3_bringup  turtlebot3_robot.launch
 ```
 
 - Launch rpicamera
-> Might have to follow steps as listed in http://emanual.robotis.com/docs/en/platform/turtlebot3/appendix_raspi_cam/
+> First time setup: http://emanual.robotis.com/docs/en/platform/turtlebot3/appendix_raspi_cam/
 ```shell
 pi@raspberrypi: ~ $ roslaunch turtlebot3_bringup  turtlebot3_rpicamera.launch
 ```
 - Run actuator scripts
 ```shell
-pi@raspberrypi: /rpi_2310$ python finalfiring.py
+pi@raspberrypi: /rpi_2310$ python firing.py
 ```
 ***Remote PC***
 
