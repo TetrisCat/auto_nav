@@ -60,7 +60,6 @@ def main():
     # save start time
     start_time = time.time()
     # initialize variable to write elapsed time to file
-    contourCheck = 1
 
     # Calling the GoToPose class from movebase.py
     navigator = GoToPose()
@@ -78,7 +77,6 @@ def main():
     rate = rospy.Rate(10)
 
     shutdown = False
-    target_found = False
     while not shutdown:
         
         if mind.closure():

@@ -29,6 +29,7 @@
 
 - [Installation](#installation)
 - [Usage](#usage)
+- [Documentation](#documentation)
 - [Team](#team)
 - [Special Thanks](#special-thanks)
 
@@ -103,7 +104,10 @@ pi@raspberrypi: ~ $ roslaunch turtlebot3_bringup  turtlebot3_robot.launch
 ```shell
 pi@raspberrypi: ~ $ roslaunch turtlebot3_bringup  turtlebot3_rpicamera.launch
 ```
-
+- Run actuator scripts
+```shell
+pi@raspberrypi: /rpi_2310$ python finalfiring.py
+```
 ***Remote PC***
 
 - Launch Image Viewer (OPTIONAL)
@@ -116,7 +120,6 @@ $ rqt_image_view
 $ rosrun auto_nav targeting.py
 ```
 ---
-
 ## Documentation 
 
 > navigation.py
@@ -125,16 +128,36 @@ $ rosrun auto_nav targeting.py
 
 > occupancy.py
 - Goal - based algorithm using RSLAM gmapping
+- `get_occupancy(self,msg,tbuffer)` takes data from [nav_msgs/OccupancyGrid](http://docs.ros.org/api/nav_msgs/html/msg/OccupancyGrid.html)
+    - It finds the boundary lines between Unoccupied(0) and Unknown(-1)
+    - It picks a new target goal using `get_closest`
+- `get_closest(self,original,adjusted,curpos,res,origin)` picks a target from a list of boundary points
+    - Calculates distance from current position to each boundary point and picks median
+    - To change this to Find nearest boundary point, adjust `mind = getMap()` in **navigation.py** to `mind = getMap('closest')`
+- `closure(self)` checks if the mapping has been completed by checking for map contours
+    - Adjust **ALTHRESH** value up or down to have a higher or lower tolerance for completed mapping
 
 > movebase.py
 - Calls up move_base as that in navigation stack
+- `goto(self, pos, quat)` is the main class method to moe the turtlebot to target goal
+    - Adjust `self.move_base.wait_for_result(rospy.Duration(4))` value if need be to optimise performance
+- More move_base parameters to adjust can be found at https://github.com/adricpjw/eg2310_nav
 
 > targeting.py
 - Main script for identification and targeting
-- Imports from impidentify.py 
+- Imports from **impidentify.py**
+- Large parts were commented due to faulty stepper and unintegrated navigation + targeting. These can be uncommented for a fully functional integrated solution
+- `detector = Detect('red')` initialises the class Detect to detect red targets. Change the color if necessary
 
 > impidentify.py
 - Contains class to subscribe to image topic and process it via OpenCV
+- `self.imgH` and `self.imgW` can be adjusted for cameras with different resolution
+    - Rpi Camera v2 has resolution of 640 x 480
+- `self.minH` and `self.minW` determines the minimum pixel height and width of a contour to be considered as the target
+    - Can be adjusted accordingly for performance
+- `self.mapping` includes the hsv ranges for the different colors. More colors can be added accordingly
+- If script cannot detect the colored targets correctly, consider uncommenting the *global_hsv* lines in **readImg** and use mouse to click on screen to find the target's hsv range
+
 
 ---
 ## Tests

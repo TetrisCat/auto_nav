@@ -19,7 +19,7 @@ def distance(p0, p1):
 
 class getMap:
     
-    def __init__(self):
+    def __init__(self,algo = 'median'):
         self.node = rospy.init_node('mapread',anonymous=False,disable_signals=True)
         self.tfBuffer = tf2_ros.Buffer()
         self.tfListener = tf2_ros.TransformListener(self.tfBuffer)
@@ -27,8 +27,9 @@ class getMap:
         self.yaw = 0
         self.map_res = 0
         self.cur_pose = ()
-        self.odata = []
-        self.target = (0,0) 
+        self.occupancy = []
+        self.target = (0,0)
+        self.algo = algo
 
         self.occ_bins = [-1, 0, 100, 101]
         self.map_res = 0.05
@@ -55,9 +56,10 @@ class getMap:
         # set all values above 1 (i.e. above 0 in the original map data, representing occupied locations)
         oc3 = (oc2>1).choose(oc2,2)
         # reshape to 2D array using column order
-        self.odata = np.uint8(oc3.reshape(msg.info.height,msg.info.width,order='F'))
+        odata = np.uint8(oc3.reshape(msg.info.height,msg.info.width,order='F'))
+        self.occupancy = np.uint8(oc2.reshape(msg.info.height,msg.info.width,order='F'))
         
-        matrix = np.transpose(np.asarray(self.odata))
+        matrix = np.transpose(np.asarray(odata))
         adjusted = []
         for row in matrix:
             x = [num if num == 1 else 0 if num >=2 else 10 for num in row]
@@ -84,9 +86,10 @@ class getMap:
         distance_lst = [distance(crd,curpos) for crd in lst]
 
         ## Current algorithm set to find median
-        idx = len(distance_lst)//2
-        # idx = np.argmin(distance_lst)
-        # Uncomment above to find target goal by shortest distance instead
+        if self.algo == 'median':
+            idx = len(distance_lst)//2
+        else:
+            idx = np.argmin(distance_lst)
         return lst[idx]
 
     def closure(self):
@@ -111,7 +114,7 @@ class getMap:
         # so we will apply a threshold of 2 to create a binary image with the
         # occupied pixels set to 255 and everything else is set to 0
         # we will use OpenCV's threshold function for this
-        ret,img2 = cv2.threshold(self.odata,2,255,0)
+        ret,img2 = cv2.threshold(self.occupancy,2,255,0)
         # we will perform some erosion and dilation to fill out the contours a
         # little bit
         element = cv2.getStructuringElement(cv2.MORPH_CROSS,(DILATE_PIXELS,DILATE_PIXELS))
