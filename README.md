@@ -195,7 +195,7 @@ $ rosrun auto_nav targeting.py
 ## FAQ
 
 - **How do I do this?**
-    - No problem! Just do this.
+    - Google!
 ---
 
 
