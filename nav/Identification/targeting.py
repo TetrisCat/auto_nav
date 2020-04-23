@@ -108,7 +108,8 @@ def main():
                     rospy.sleep(1)
                     toggle = False # Comment this if uncommenting stepper code below
 
-        # activates stepper to tilt payload cannon upwards
+        # activates stepper to tilt payload cannon upwards as long as 
+        # camera center is not aligned with image center
         '''
         else:
             if detector.diff_x and detector.diff_y:
