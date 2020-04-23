@@ -149,13 +149,13 @@ $ rosrun auto_nav targeting.py
 
 # AWESOME TEAM OF GROUP7
 
-| <a href="https://sg.linkedin.com/in/tham-kai-wen-2679b2184" target="_blank">**Tham Kai Wen**</a> | **Teo Rumin** | **Cyril Aoun**|
-| :---: |:---:| :---:|
-| [![Tham Kai Wen](https://hcastro.org/temp_photos/kaiwen.JPG)](https://sg.linkedin.com/in/tham-kai-wen-2679b2184)    | ![Teo Rumin](https://i.imgur.com/CKrEBcR.jpg) | ![Cyril Aoun](https://i.imgur.com/CKrEBcR.jpg)   |
+| **Cyril Aoun the COSMONAUT** | **Cyril Aoun the PRINCESS LEIA** | 
+| :---: |
+| ![Cyril Aoun](https://i.imgur.com/8KMpmmK.jpg)   | ![Cyril Aoun](https://i.imgur.com/BQMStDN.jpg) | 
 
-|**Adric Pang** | **Mohamed Faris** |
-| :---: |:---:| 
-| ![Adric Pang](https://i.imgur.com/CKrEBcR.jpg)   | ![Mohamed Faris](https://i.imgur.com/CKrEBcR.jpg) | 
+|**Adric Pang, Mohamed Faris, Tham Kai Wen, Teo Ru Min** |
+| :---: |
+| ![Team7](https://i.imgur.com/AMvtMr6.jpg)  |
 
 ---
 ## Special Thanks
