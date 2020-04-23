@@ -101,7 +101,7 @@ pi@raspberrypi: ~ $ roslaunch turtlebot3_bringup  turtlebot3_robot.launch
 - Launch rpicamera
 > Might have to follow steps as listed in http://emanual.robotis.com/docs/en/platform/turtlebot3/appendix_raspi_cam/
 ```shell
-pi@raspberrypi: ~ $ roslaunch turtlebot3_bringup  turtlebot3_rpicamera.
+pi@raspberrypi: ~ $ roslaunch turtlebot3_bringup  turtlebot3_rpicamera.launch
 ```
 
 ***Remote PC***
