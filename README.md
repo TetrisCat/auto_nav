@@ -36,7 +36,7 @@
 
 ## Installation
 
-- Clone this repo to your local machine using `https://github.com/TetrisCat/auto_nav`
+- Clone this repo to your local machine using `git clone https://github.com/TetrisCat/auto_nav`
 - Make sure this is in your catkin workspace
 
 ### Setup
