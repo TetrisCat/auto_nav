@@ -150,7 +150,7 @@ $ rosrun auto_nav targeting.py
 # AWESOME TEAM OF GROUP7
 
 | **Cyril Aoun the COSMONAUT** | **Cyril Aoun the PRINCESS LEIA** | 
-| :---: |
+| :---: | :---: |
 | ![Cyril Aoun](https://i.imgur.com/8KMpmmK.jpg)   | ![Cyril Aoun](https://i.imgur.com/BQMStDN.jpg) | 
 
 |**Adric Pang, Mohamed Faris, Tham Kai Wen, Teo Ru Min** |
