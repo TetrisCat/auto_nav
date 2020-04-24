@@ -137,7 +137,7 @@ $ rosrun auto_nav targeting.py
 
 ### movebase.py
 - Calls up move_base as that in navigation stack
-- `goto(self, pos, quat)` is the main class method to moe the turtlebot to target goal
+- `goto(self, pos, quat)` is the main class method to move the turtlebot to target goal
     - Adjust `self.move_base.wait_for_result(rospy.Duration(4))` value if need be to optimise performance
 - More move_base parameters to adjust can be found at https://github.com/adricpjw/eg2310_nav
 
@@ -154,7 +154,7 @@ $ rosrun auto_nav targeting.py
 - `self.minH` and `self.minW` determines the minimum pixel height and width of a contour to be considered as the target
     - Can be adjusted accordingly for performance
 - `self.mapping` includes the hsv ranges for the different colors. More colors can be added accordingly
-- If script cannot detect the colored targets correctly, consider uncommenting the *global_hsv* lines in **readImg** and use mouse to click on screen to find the target's hsv range
+- If script cannot detect the colored targets correctly, consider uncommenting the ***global_hsv*** lines in **readImg** and use mouse to click on screen to find the target's hsv range
 
 
 ---
