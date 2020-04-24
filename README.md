@@ -2,7 +2,7 @@
 
 # 2020 EG2310 Group 7 Autonomous Navigation and Identification
 
-> A collection of files accessed and used to accomplish the autonmous navigation and identification
+> A collection of files accessed and used to accomplish the autonmous navigation through an unknown map and autnonmous identification of target
 
 > 13 weeks of grueling fun kill me now
 
@@ -166,6 +166,46 @@ $ rosrun auto_nav targeting.py
 
 <a href="http://wiki.ros.org/turtlebot_gazebo"><img src="https://emanual.robotis.com/assets/images/platform/turtlebot3/simulation/turtlebot3_world_bugger.png"> </a>
 
+### Example Outputs
+
+##### Navigation
+
+The following is an example shell output when running **navigation** script
+```shell
+$ rosrun auto_nav navigation.py 
+[INFO] [1587693435.870565, 432.950000]: Current Pose: x: -4.84335334524, y: 1.24888772808
+[INFO] [1587693440.234742, 434.900000]: Wait for the action server to come up
+[INFO] [1587693440.740638, 435.197000]: target coord: (-1.2,2.15)
+[INFO] [1587693440.831883, 435.267000]: Current Pose: x: -4.84652103123, y: 1.25515305131
+[INFO] [1587692953.202890, 129.757000]: Go to (-1.2, 2.15) pose
+[INFO] [1587692956.509401, 132.124000]: target coord: (-1.95,2.4)
+[INFO] [1587692957.765243, 132.818000]: Current Pose: x: -2.10776583024, y: 0.6561469173
+[INFO] [1587692959.316058, 133.842000]: Go to (-1.95, 2.4) pose
+[INFO] [1587693446.382533, 438.147000]: Mapping Complete. Shutting down node
+[INFO] [1587693446.384750, 438.147000]: Stop
+$
+```
+
+**Note:** RVIZ should be launched when `turtlebot3_nav_sim.launch` is launched
+
+##### Identification
+
+The following is an example shell output when running **targeting** script
+```shell
+$ rosrun auto_nav targeting.py
+[INFO] [1587693435.870565, 432.950000]: cv_image is still blank~
+[INFO] [1587692956.509401, 132.124000]: Found Corner at 371 and 288
+[INFO] [1587692957.765243, 132.818000]: Found target center at 354 and 278
+[INFO] [1587692959.316058, 133.842000]: x-axis diff: -34
+[INFO] [1587693446.382533, 438.147000]: y-axis diff: -38
+[INFO] [1587693446.384750, 438.147000]: Calibrating Left/Right Aim. Publishing to cmd_rotate -1
+[INFO] [1587692956.509401, 132.124000]: Found Corner at 335 and 292
+[INFO] [1587692957.765243, 132.818000]: Found target center at 318 and 281
+[INFO] [1587692959.316058, 133.842000]: x-axis diff: -2
+[INFO] [1587693446.382533, 438.147000]: y-axis diff: -41
+[INFO] [1587693446.384750, 438.147000]: Calibration Complete!
+$
+```
 ---
 
 ## Team
