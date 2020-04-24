@@ -6,8 +6,6 @@
 
 > 13 weeks of grueling fun kill me now
 
-> Currently known issue: closure script after mapping not running
-
 
 [![Build Status](http://img.shields.io/travis/badges/badgerbadgerbadger.svg?style=flat-square)](https://travis-ci.org/badges/badgerbadgerbadger) 
 
