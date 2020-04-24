@@ -55,7 +55,6 @@ def main():
     # Calling the getMap Class from occupancy.py
     # the rospy.Subscriber is called when this class initialised
     mind = getMap()
-
     rospy.sleep(2.0)
     # save start time
     start_time = time.time()
@@ -63,15 +62,6 @@ def main():
 
     # Calling the GoToPose class from movebase.py
     navigator = GoToPose()
-
-    # Setting first target goal
-    position = {'x':mind.target[0], 'y' : mind.target[1]}
-    quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
-
-    rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
-
-    # First nav move
-    navigator.goto(position, quaternion)
 
     rospy.on_shutdown(stopbot)
     rate = rospy.Rate(10)
@@ -90,18 +80,19 @@ def main():
             soundhandle.play(SoundRequest.NEEDS_UNPLUGGING)
             rospy.sleep(2)
             # save the map
-            cv2.imwrite('mazemap.png',mind.odata)
+            cv2.imwrite('mazemap.png',mind.occupancy)
             # Publisher to let the indentification script know that mapping is done
-            pub = rospy.Publisher('mapdone',String) # To let targeting script know that mapping is complete
+            pub = rospy.Publisher('mapdone',String,queue_size = 10) # To let targeting script know that mapping is complete
             pub.publish('Done!')
-            rospy.sleep(1)
+            rospy.loginfo('Mapping Complete. Shutting down node')
             shutdown = True # No longer need to run this script if mapping is done
         else:
-            position = {'x':mind.target[0], 'y' : mind.target[1]}
-            quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
+            if mind.target:
+                position = {'x':mind.target[0], 'y' : mind.target[1]}
+                quaternion = {'r1' : 0.000, 'r2' : 0.000, 'r3' : 0.000, 'r4' : 1.000}
 
-            rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
-            navigator.goto(position, quaternion)
+                rospy.loginfo("Go to (%s, %s) pose", position['x'], position['y'])
+                navigator.goto(position, quaternion)
     
 
 if __name__ == '__main__':
