@@ -70,7 +70,7 @@ $ sudo apt-get install python-opencv
 **Imutils**
 ```shell
 >>> pip2 install imutils
->>> pip2 install 
+>>> pip2 install opencv-python
 ```
 
 **Or if you are debugging in a conda environtment:**
