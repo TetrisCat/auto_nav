@@ -9,7 +9,7 @@
 
 [![Build Status](http://img.shields.io/travis/badges/badgerbadgerbadger.svg?style=flat-square)](https://travis-ci.org/badges/badgerbadgerbadger) 
 
-- Tested and ran on ROS1 Kinetic
+- Tested and ran on ROS1 Kinetic, python 2.7 which runs on Ubuntu 16.04
 
 ![Turtlebot3 CAD Design](https://i.imgur.com/hSwf48f.jpg)
 
@@ -59,6 +59,25 @@ $ cd ~/catkin_ws && catkin_make
 - http://wiki.ros.org/sound_play 
 
 - https://github.com/adricpjw/eg2310_nav 
+
+- The Identification script requires [OpenCV](https://pypi.org/project/opencv-python/) and [Imutils](https://pypi.org/project/imutils/) installed
+
+**OpenCV**
+```shell
+$ sudo apt-get install python-opencv
+```
+
+**Imutils**
+```shell
+>>> pip2 install imutils
+>>> pip2 install 
+```
+
+**Or if you are debugging in a conda environtment:**
+```shell
+$ conda install -c conda-forge opencv
+$ conda install -c conda-forge imutils
+```
 
 ***FOR RPI CODE***
 
